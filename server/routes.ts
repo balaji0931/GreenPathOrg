@@ -24,6 +24,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch stats" });
     }
   });
+  
+  // GET leaderboard
+  app.get("/api/leaderboard", async (req, res) => {
+    try {
+      const timeRange = req.query.timeRange as string || 'monthly';
+      
+      // Get users from all roles, sort by social points
+      const customers = await storage.getUsersByRole("customer");
+      const dealers = await storage.getUsersByRole("dealer");
+      const organizations = await storage.getUsersByRole("organization");
+      
+      // Combine all users and sort by social points
+      const allUsers = [...customers, ...dealers, ...organizations];
+      const sortedUsers = allUsers.sort((a, b) => (b.socialPoints || 0) - (a.socialPoints || 0));
+      
+      // Return top 10 users with sensitive info removed
+      const topUsers = sortedUsers.slice(0, 10).map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+      
+      res.json(topUsers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch leaderboard data" });
+    }
+  });
 
   // GET media content
   app.get("/api/media", async (req, res) => {

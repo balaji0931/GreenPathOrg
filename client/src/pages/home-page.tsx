@@ -6,6 +6,8 @@ import { HowItWorks } from "@/components/home/how-it-works";
 import { UserRoles } from "@/components/home/user-roles";
 import { DonationImpact } from "@/components/home/donation-impact";
 import { MediaSection } from "@/components/home/media-section";
+import { ReviewsSection } from "@/components/home/reviews-section";
+import { LeaderboardSection } from "@/components/home/leaderboard-section";
 import { CTASection } from "@/components/home/cta-section";
 
 export default function HomePage() {
@@ -18,6 +20,8 @@ export default function HomePage() {
         <HowItWorks />
         <UserRoles />
         <DonationImpact />
+        <ReviewsSection />
+        <LeaderboardSection />
         <MediaSection />
         <CTASection />
       </main>

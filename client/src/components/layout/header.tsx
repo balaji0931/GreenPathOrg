@@ -23,31 +23,29 @@ export function Header() {
   const isActive = (path: string) => location === path;
 
   const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
-    <Link href={href}>
-      <a
-        className={`font-medium transition ${
+    <Link 
+      href={href}
+      className={`font-medium transition ${
+        isActive(href)
+          ? "text-primary"
+          : "text-neutral-darker hover:text-primary"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+
+  const MobileNavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <SheetClose asChild>
+      <Link 
+        href={href}
+        className={`block py-2 font-medium transition ${
           isActive(href)
             ? "text-primary"
             : "text-neutral-darker hover:text-primary"
         }`}
       >
         {children}
-      </a>
-    </Link>
-  );
-
-  const MobileNavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
-    <SheetClose asChild>
-      <Link href={href}>
-        <a
-          className={`block py-2 font-medium transition ${
-            isActive(href)
-              ? "text-primary"
-              : "text-neutral-darker hover:text-primary"
-          }`}
-        >
-          {children}
-        </a>
       </Link>
     </SheetClose>
   );
@@ -55,11 +53,9 @@ export function Header() {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <nav className="container mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
-        <Link href="/">
-          <a className="flex items-center space-x-2">
-            <Leaf className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl text-primary">Green Path</span>
-          </a>
+        <Link href="/" className="flex items-center space-x-2">
+          <Leaf className="h-6 w-6 text-primary" />
+          <span className="font-bold text-xl text-primary">Green Path</span>
         </Link>
 
         <div className="hidden md:flex items-center space-x-8">
@@ -72,11 +68,11 @@ export function Header() {
         <div className="flex items-center space-x-4">
           {user ? (
             <>
-              <Link href={`/dashboard/${user.role}`}>
-                <Button variant="outline" className="hidden md:inline-flex">
+              <Button variant="outline" className="hidden md:inline-flex" asChild>
+                <Link href={`/dashboard/${user.role}`}>
                   Dashboard
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Button onClick={handleLogout} variant="default">
                 Logout
               </Button>

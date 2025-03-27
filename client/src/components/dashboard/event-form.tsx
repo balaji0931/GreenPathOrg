@@ -16,6 +16,8 @@ const eventFormSchema = insertEventSchema.extend({
     address: z.string().min(1, "Address is required"),
     city: z.string().min(1, "City is required"),
   }),
+  // Make sure we accept string for the date since that's what HTML inputs provide
+  date: z.string(),
 });
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
@@ -101,15 +103,43 @@ export function EventForm() {
         <FormField
           control={form.control}
           name="date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Event Date & Time</FormLabel>
-              <FormControl>
-                <Input type="datetime-local" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={({ field: { onChange, value, ...restField } }) => {
+            // Handle date formatting for the datetime-local input
+            let dateValue = "";
+            if (value) {
+              // Format ISO string to the format expected by datetime-local
+              const date = new Date(value);
+              if (!isNaN(date.getTime())) {
+                dateValue = new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
+                  .toISOString()
+                  .slice(0, 16); // Gets YYYY-MM-DDTHH:MM format
+              }
+            }
+
+            return (
+              <FormItem>
+                <FormLabel>Event Date & Time</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="datetime-local" 
+                    {...restField}
+                    value={dateValue}
+                    onChange={(e) => {
+                      const inputDate = e.target.value;
+                      // Convert to ISO string for storage
+                      if (inputDate) {
+                        const date = new Date(inputDate);
+                        onChange(date.toISOString());
+                      } else {
+                        onChange("");
+                      }
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -145,15 +175,19 @@ export function EventForm() {
         <FormField
           control={form.control}
           name="maxParticipants"
-          render={({ field }) => (
+          render={({ field: { onChange, value, ...restField } }) => (
             <FormItem>
               <FormLabel>Max Participants (0 for unlimited)</FormLabel>
               <FormControl>
                 <Input 
                   type="number" 
                   min="0"
-                  {...field}
-                  onChange={e => field.onChange(parseInt(e.target.value) || 0)}
+                  {...restField}
+                  value={value?.toString() || "0"}
+                  onChange={e => {
+                    const val = e.target.value !== "" ? parseInt(e.target.value) : 0;
+                    onChange(!isNaN(val) ? val : 0);
+                  }}
                 />
               </FormControl>
               <FormMessage />
