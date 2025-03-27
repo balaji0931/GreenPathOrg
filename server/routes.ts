@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
+import { setupWebSocketServer } from "./websocket";
 import { z } from "zod";
 import {
   insertWasteReportSchema,
@@ -282,7 +283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
       
-      let donations;
+      let donations: Awaited<ReturnType<typeof storage.getDonationsByUserId>>;
       const userId = req.user.id;
       const userRole = req.user.role;
       
@@ -293,14 +294,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Get all users to get their donations
         const customers = await storage.getUsersByRole("customer");
         
-        // Get all user donations
-        let allDonations = [];
-        for (const customer of customers) {
-          const userDonations = await storage.getDonationsByUserId(customer.id);
-          allDonations = [...allDonations, ...userDonations];
-        }
+        // Get all user donations from all customers
+        const customerDonations = await Promise.all(
+          customers.map(customer => storage.getDonationsByUserId(customer.id))
+        );
         
-        donations = allDonations;
+        // Flatten the array of arrays into a single array of donations
+        donations = customerDonations.flat();
       } else if (userRole === 'organization') {
         // Organizations see all available donations
         donations = await storage.getAvailableDonations();
@@ -508,5 +508,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  
+  // Setup WebSocket server
+  setupWebSocketServer(httpServer);
+  
   return httpServer;
 }

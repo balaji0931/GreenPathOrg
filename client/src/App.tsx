@@ -45,6 +45,8 @@ function Router() {
 }
 
 function App() {
+  console.log("Green Path: App component rendering");
+  
   return (
     <>
       <Router />
