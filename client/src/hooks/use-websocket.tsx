@@ -32,7 +32,7 @@ export function useWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     // Use the current hostname to handle both development and production environments
     const wsUrl = `${protocol}//${window.location.host}/ws-api`;
-    console.log('Connecting to WebSocket at:', wsUrl);
+    console.log('Attempting WebSocket connection to:', wsUrl);
     
     // Clean up any existing connection
     if (socketRef.current) {
@@ -53,6 +53,7 @@ export function useWebSocket() {
       socket.onopen = () => {
         setStatus('open');
         reconnectAttemptsRef.current = 0;
+        console.log('WebSocket connection established successfully');
         if (onOpen) onOpen();
       };
       
@@ -60,17 +61,21 @@ export function useWebSocket() {
         setStatus('closed');
         if (onClose) onClose();
         
-        // Attempt to reconnect
-        if (reconnectAttemptsRef.current < reconnectAttempts) {
+        // Only attempt to reconnect if explicitly configured
+        if (reconnectAttempts > 0 && reconnectAttemptsRef.current < reconnectAttempts) {
+          console.log(`WebSocket reconnect attempt ${reconnectAttemptsRef.current + 1}/${reconnectAttempts}`);
           reconnectAttemptsRef.current += 1;
           reconnectTimeoutRef.current = setTimeout(() => {
             connect(options);
           }, reconnectInterval);
+        } else {
+          console.log('WebSocket closed, not attempting to reconnect');
         }
       };
       
       socket.onerror = (error) => {
         setStatus('error');
+        console.log('WebSocket connection error - app will continue without real-time updates');
         if (onError) onError(error);
       };
       
@@ -90,7 +95,7 @@ export function useWebSocket() {
       };
     } catch (error) {
       setStatus('error');
-      console.error('WebSocket connection error:', error);
+      console.error('WebSocket connection failed:', error);
       if (onError) onError(error as Event);
     }
     
