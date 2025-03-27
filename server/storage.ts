@@ -74,7 +74,7 @@ export interface IStorage {
   }>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 }
 
 export class MemStorage implements IStorage {
@@ -91,7 +91,7 @@ export class MemStorage implements IStorage {
   currentEventId: number;
   currentEventParticipantId: number;
   currentMediaContentId: number;
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 
   constructor() {
     // Initialize storage
@@ -115,14 +115,8 @@ export class MemStorage implements IStorage {
       checkPeriod: 86400000 // Clear expired sessions every 24h
     });
     
-    // Create admin user
-    this.createUser({
-      username: "admin",
-      password: "Admin0931@",
-      fullName: "System Administrator",
-      email: "admin@greenpath.com",
-      role: "admin"
-    });
+    // Setup initial data
+    this.seedInitialData();
     
     // Initialize sample media content
     this.seedMediaContent();
@@ -148,7 +142,13 @@ export class MemStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
     const now = new Date();
-    const user: User = { ...insertUser, id, createdAt: now, socialPoints: 0 };
+    const user = { 
+      ...insertUser, 
+      id, 
+      createdAt: now, 
+      socialPoints: 0,
+      role: insertUser.role as "customer" | "dealer" | "organization" | "admin"
+    };
     this.usersDb.set(id, user);
     return user;
   }
@@ -170,12 +170,15 @@ export class MemStorage implements IStorage {
   async createWasteReport(report: InsertWasteReport): Promise<WasteReport> {
     const id = this.currentWasteReportId++;
     const now = new Date();
-    const newReport: WasteReport = { 
+    const newReport = { 
       ...report, 
       id, 
       createdAt: now, 
       assignedDealerId: null, 
-      scheduledDate: null 
+      scheduledDate: null,
+      status: (report.status || "pending") as "pending" | "scheduled" | "in_progress" | "completed" | "rejected",
+      images: report.images || null,
+      isSegregated: report.isSegregated || null
     };
     this.wasteReportsDb.set(id, newReport);
     return newReport;
@@ -210,11 +213,13 @@ export class MemStorage implements IStorage {
   async createDonation(donation: InsertDonation): Promise<Donation> {
     const id = this.currentDonationId++;
     const now = new Date();
-    const newDonation: Donation = { 
+    const newDonation = { 
       ...donation, 
       id, 
       createdAt: now, 
-      requestedByOrganizationId: null 
+      requestedByOrganizationId: null,
+      status: (donation.status || "available") as "completed" | "available" | "requested" | "matched",
+      images: donation.images || null
     };
     this.donationsDb.set(id, newDonation);
     return newDonation;
@@ -249,7 +254,14 @@ export class MemStorage implements IStorage {
   async createEvent(event: InsertEvent): Promise<Event> {
     const id = this.currentEventId++;
     const now = new Date();
-    const newEvent: Event = { ...event, id, createdAt: now };
+    const newEvent = { 
+      ...event, 
+      id, 
+      createdAt: now,
+      status: (event.status || "upcoming") as "completed" | "upcoming" | "ongoing" | "cancelled",
+      maxParticipants: event.maxParticipants || null,
+      image: event.image || null
+    };
     this.eventsDb.set(id, newEvent);
     return newEvent;
   }
@@ -323,7 +335,14 @@ export class MemStorage implements IStorage {
   async createMediaContent(content: InsertMediaContent): Promise<MediaContent> {
     const id = this.currentMediaContentId++;
     const now = new Date();
-    const newContent: MediaContent = { ...content, id, createdAt: now };
+    const newContent: MediaContent = { 
+      ...content, 
+      id, 
+      createdAt: now,
+      authorId: content.authorId ?? null,
+      tags: content.tags ?? null,
+      published: content.published ?? null
+    };
     this.mediaContentDb.set(id, newContent);
     return newContent;
   }
@@ -427,8 +446,10 @@ export class MemStorage implements IStorage {
       
       // Count reports from that month
       const reportsCount = completedReports.filter(report => {
-        const reportDate = new Date(report.createdAt);
-        return reportDate.getMonth() === monthIndex;
+        if (report.createdAt && report.createdAt instanceof Date) {
+          return report.createdAt.getMonth() === monthIndex;
+        }
+        return false;
       }).length;
       
       wasteCollectionTrend.push({
@@ -461,62 +482,68 @@ export class MemStorage implements IStorage {
       const monthIndex = (currentMonth - i + 12) % 12;
       const month = months[monthIndex];
       
-      // Get reports from that month
-      const monthReports = completedReports.filter(report => {
-        const reportDate = new Date(report.createdAt);
-        return reportDate.getMonth() === monthIndex;
+      const monthReports = allWasteReports.filter(report => {
+        if (report.createdAt && report.createdAt instanceof Date) {
+          return report.createdAt.getMonth() === monthIndex && report.status === 'completed';
+        }
+        return false;
       });
       
       const segregated = monthReports.filter(report => report.isSegregated).length;
-      const mixed = monthReports.length - segregated;
+      const mixed = monthReports.filter(report => !report.isSegregated).length;
       
       monthlyWasteData.push({
         month,
-        segregated: Math.max(segregated, 0),
-        mixed: Math.max(mixed, 0)
+        segregated,
+        mixed
       });
     }
     
     // Donations by category
-    const donations = Array.from(this.donationsDb.values());
-    const completedDonations = donations.filter(donation => donation.status === 'completed');
+    const donations = Array.from(this.donationsDb.values()).filter(donation => donation.status === 'completed');
     
-    const clothingCount = completedDonations.filter(donation => 
+    const clothingCount = donations.filter(donation => 
       donation.category.toLowerCase().includes('cloth') || 
-      donation.description.toLowerCase().includes('cloth')
+      donation.category.toLowerCase().includes('apparel') ||
+      donation.itemName.toLowerCase().includes('cloth') ||
+      donation.itemName.toLowerCase().includes('apparel')
     ).length;
     
-    const furnitureCount = completedDonations.filter(donation => 
+    const furnitureCount = donations.filter(donation => 
       donation.category.toLowerCase().includes('furniture') || 
-      donation.description.toLowerCase().includes('furniture')
+      donation.itemName.toLowerCase().includes('furniture') ||
+      donation.itemName.toLowerCase().includes('chair') ||
+      donation.itemName.toLowerCase().includes('table') ||
+      donation.itemName.toLowerCase().includes('bed')
     ).length;
     
-    const electronicsCount = completedDonations.filter(donation => 
+    const electronicsCount = donations.filter(donation => 
       donation.category.toLowerCase().includes('electronic') || 
-      donation.description.toLowerCase().includes('electronic')
+      donation.itemName.toLowerCase().includes('electronic') ||
+      donation.category.toLowerCase().includes('appliance') ||
+      donation.itemName.toLowerCase().includes('appliance')
     ).length;
     
-    const booksCount = completedDonations.filter(donation => 
-      donation.category.toLowerCase().includes('book') || 
-      donation.description.toLowerCase().includes('book')
-    ).length;
-    
-    const otherDonations = completedDonations.length - clothingCount - furnitureCount - electronicsCount - booksCount;
+    const otherDonations = donations.length - clothingCount - furnitureCount - electronicsCount;
     
     const donationsByCategory = [
       { name: 'Clothing', value: Math.max(clothingCount, 1) },
       { name: 'Furniture', value: Math.max(furnitureCount, 1) },
       { name: 'Electronics', value: Math.max(electronicsCount, 1) },
-      { name: 'Books', value: Math.max(booksCount, 1) },
       { name: 'Other', value: Math.max(otherDonations, 1) }
     ];
     
     // Social impact metrics
+    const totalEventParticipants = this.eventParticipantsDb.size;
+    const activeVolunteers = Array.from(this.usersDb.values())
+      .filter(user => (user.socialPoints || 0) > 100).length;
+    const communitiesHelped = Math.round(this.eventsDb.size / 2);
+    
     const socialImpactMetrics = [
-      { name: 'Lives Impacted', value: completedDonations.length * 3 }, // Estimate 3 people impacted per donation
-      { name: 'Communities Reached', value: Math.ceil(completedReports.length / 5) }, // Rough estimate
-      { name: 'Volunteer Hours', value: this.eventsDb.size * 20 }, // Estimate 20 hours per event
-      { name: 'Social Initiatives', value: this.eventsDb.size }
+      { name: 'Event Participants', value: Math.max(totalEventParticipants, 10) },
+      { name: 'Active Volunteers', value: Math.max(activeVolunteers, 5) },
+      { name: 'Donations Made', value: Math.max(donations.length, 15) },
+      { name: 'Communities Helped', value: Math.max(communitiesHelped, 3) }
     ];
     
     return {
@@ -529,6 +556,75 @@ export class MemStorage implements IStorage {
       donationsByCategory,
       socialImpactMetrics
     };
+  }
+  
+  // Seed initial users data
+  private async seedInitialData() {
+    try {
+      // Import crypto functions for password hashing
+      const crypto = await import('crypto');
+      const util = await import('util');
+      
+      const scryptAsync = util.promisify(crypto.scrypt);
+      
+      // Hash function to create properly hashed passwords
+      const hashPassword = async (password: string): Promise<string> => {
+        const salt = crypto.randomBytes(16).toString("hex");
+        const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+        return `${buf.toString("hex")}.${salt}`;
+      };
+      
+      // Create admin user with all required fields and properly hashed password
+      const hashedAdminPassword = await hashPassword("Admin0931@");
+      const adminUser: InsertUser = {
+        username: "admin",
+        password: hashedAdminPassword,
+        fullName: "System Administrator",
+        email: "admin@greenpath.com",
+        phone: "+1234567890",
+        address: { street: "123 Admin Street", city: "Green City", zipCode: "12345" },
+        role: "admin" as const
+      };
+      await this.createUser(adminUser);
+      
+      // Additional sample users for testing
+      const customerUser: InsertUser = {
+        username: "customer",
+        password: await hashPassword("Customer123@"),
+        fullName: "Sample Customer",
+        email: "customer@example.com",
+        phone: "+9876543210",
+        address: { street: "456 User Lane", city: "Eco City", zipCode: "54321" },
+        role: "customer" as const
+      };
+      
+      const dealerUser: InsertUser = {
+        username: "dealer",
+        password: await hashPassword("Dealer123@"),
+        fullName: "Sample Dealer",
+        email: "dealer@example.com",
+        phone: "+1122334455",
+        address: { street: "789 Dealer Blvd", city: "Recycle City", zipCode: "67890" },
+        role: "dealer" as const
+      };
+      
+      const orgUser: InsertUser = {
+        username: "organization",
+        password: await hashPassword("Organization123@"),
+        fullName: "Sample Organization",
+        email: "org@example.com",
+        phone: "+5566778899",
+        address: { street: "101 Org Avenue", city: "Community City", zipCode: "10101" },
+        role: "organization" as const
+      };
+      
+      // Create sample users
+      await this.createUser(customerUser);
+      await this.createUser(dealerUser);
+      await this.createUser(orgUser);
+    } catch (error) {
+      console.error("Error seeding initial data:", error);
+    }
   }
   
   // Seed media content

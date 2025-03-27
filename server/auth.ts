@@ -4,7 +4,7 @@ import { Express } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { storage } from "./storage";
+import { storage, IStorage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
 import { z } from "zod";
 
@@ -23,7 +23,18 @@ async function hashPassword(password: string) {
 }
 
 async function comparePasswords(supplied: string, stored: string) {
+  // Check if the stored password has a salt
+  if (!stored || !stored.includes(".")) {
+    console.error("Invalid stored password format (missing salt)");
+    return false;
+  }
+  
   const [hashed, salt] = stored.split(".");
+  if (!salt) {
+    console.error("Salt is undefined after splitting");
+    return false;
+  }
+  
   const hashedBuf = Buffer.from(hashed, "hex");
   const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
   return timingSafeEqual(hashedBuf, suppliedBuf);
