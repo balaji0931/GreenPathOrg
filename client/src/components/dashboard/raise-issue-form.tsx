@@ -63,7 +63,10 @@ export function RaiseIssueForm() {
     mutationFn: async (data: IssueFormValues) => {
       const formData = {
         ...data,
-        location: { basicAddress: data.location, city: "", pinCode: "" },
+        title: data.title,
+        description: data.description,
+        issueType: data.issueType,
+        location: { basicAddress: data.location, city: "City", pinCode: "000000" },
         requestCommunityHelp: data.needHelp,
         images: [], // Empty array since we're not implementing image upload fully yet
         status: "pending",

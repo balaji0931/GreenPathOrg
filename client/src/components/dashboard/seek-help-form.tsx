@@ -82,7 +82,10 @@ export function SeekHelpForm() {
     mutationFn: async (data: HelpRequestValues) => {
       const requestData = {
         ...data,
-        location: { basicAddress: data.location, city: "", pinCode: "" },
+        title: data.title,
+        description: data.description,
+        helpType: data.helpType,
+        location: { basicAddress: data.location, city: "City", pinCode: "000000" },
         scheduledDate: data.date,
         maxParticipants: parseInt(data.maxParticipants) || 5,
         status: "pending",

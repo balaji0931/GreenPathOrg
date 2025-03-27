@@ -62,7 +62,14 @@ export default function DonatePage() {
         description: data.description,
         category: data.donationType,
         images: [],
-        status: "available"
+        status: "available",
+        condition: "good", // Add a default condition
+        quantity: 1, // Add a default quantity
+        location: { // Add a properly formatted location object with all required fields
+          basicAddress: data.name + " - Contact via: " + data.phone,
+          city: "City",
+          pinCode: "000000"
+        }
       };
       
       const response = await apiRequest("POST", "/api/donations", formData);

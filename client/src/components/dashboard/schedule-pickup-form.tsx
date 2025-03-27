@@ -82,8 +82,8 @@ export function SchedulePickupForm() {
         description: data.description || `Pickup request for ${data.quantity}kg of ${data.wasteType} waste`,
         location: { 
           basicAddress: data.address, 
-          city: "",
-          pinCode: "" 
+          city: "City",
+          pinCode: "000000" 
         },
         status: "pending",
         isSegregated: data.isSegregated === "yes",
