@@ -86,7 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // POST media content (requires authentication)
   app.post("/api/media", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.isAuthenticated() || !req.user) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
@@ -105,7 +105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Routes that require authentication
   app.use("/api/waste-reports", (req, res, next) => {
-    if (!req.isAuthenticated()) {
+    if (!req.isAuthenticated() || !req.user) {
       return res.status(401).json({ message: "Authentication required" });
     }
     next();
@@ -114,6 +114,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Waste reports routes
   app.get("/api/waste-reports", async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
       const userId = req.user.id;
       let reports;
       
@@ -141,6 +145,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/waste-reports", async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
       const userId = req.user.id;
       const validatedData = insertWasteReportSchema.parse(req.body);
       
@@ -157,6 +165,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/waste-reports/:id", async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
       const id = parseInt(req.params.id);
       const report = await storage.getWasteReport(id);
       
@@ -182,6 +194,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Donation routes
   app.get("/api/donations", async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
       let donations;
       const userId = req.user.id;
       const userRole = req.user.role;
@@ -201,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/donations", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.isAuthenticated() || !req.user) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
@@ -221,7 +237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.put("/api/donations/:id", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.isAuthenticated() || !req.user) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
@@ -260,7 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/events", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.isAuthenticated() || !req.user) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
@@ -286,7 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.put("/api/events/:id", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.isAuthenticated() || !req.user) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
@@ -312,7 +328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Event participants routes
   app.post("/api/events/:id/participants", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.isAuthenticated() || !req.user) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
@@ -367,7 +383,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.delete("/api/events/:id/participants", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.isAuthenticated() || !req.user) {
       return res.status(401).json({ message: "Authentication required" });
     }
 

@@ -240,116 +240,109 @@ export default function CustomerDashboard() {
                   </TabsList>
 
                   <TabsContent value="waste-reports">
-                  <div className="grid gap-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Report Waste</CardTitle>
-                        <CardDescription>
-                          Provide details about the waste that needs to be collected.
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <WasteReportForm />
-                      </CardContent>
-                    </Card>
+                    <div className="grid gap-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Report Waste</CardTitle>
+                          <CardDescription>
+                            Provide details about the waste that needs to be collected.
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <WasteReportForm />
+                        </CardContent>
+                      </Card>
 
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Your Waste Reports</CardTitle>
-                        <CardDescription>
-                          Track the status of your submitted waste reports.
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        {isLoadingReports ? (
-                          <div className="flex justify-center py-8">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                          </div>
-                        ) : wasteReports && wasteReports.length > 0 ? (
-                          <div className="grid gap-4">
-                            {wasteReports.map((report: any) => (
-                              <PickupStatus key={report.id} report={report} />
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-center py-8 text-neutral-dark">
-                            You haven't submitted any waste reports yet.
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Your Waste Reports</CardTitle>
+                          <CardDescription>
+                            Track the status of your submitted waste reports.
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          {isLoadingReports ? (
+                            <div className="flex justify-center py-8">
+                              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            </div>
+                          ) : wasteReports && wasteReports.length > 0 ? (
+                            <div className="grid gap-4">
+                              {wasteReports.map((report: any) => (
+                                <PickupStatus key={report.id} report={report} />
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8 text-neutral-dark">
+                              You haven't submitted any waste reports yet.
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
 
                   <TabsContent value="donations">
                     <div className="grid gap-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Donate Items</CardTitle>
-                        <CardDescription>
-                          List items you want to donate to organizations in need.
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <DonationForm />
-                      </CardContent>
-                    </Card>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Donate Items</CardTitle>
+                          <CardDescription>
+                            List items you want to donate to organizations in need.
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <DonationForm />
+                        </CardContent>
+                      </Card>
 
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Your Donations</CardTitle>
-                        <CardDescription>
-                          Track the status of your donations.
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        {isLoadingDonations ? (
-                          <div className="flex justify-center py-8">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                          </div>
-                        ) : donations && donations.length > 0 ? (
-                          <div className="grid gap-4">
-                            {donations.map((donation: any) => (
-                              <div key={donation.id} className="border rounded-lg p-4">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <h3 className="font-semibold">{donation.itemName}</h3>
-                                    <p className="text-sm text-neutral-dark">{donation.description}</p>
-                                    <p className="text-sm mt-2">Category: {donation.category}</p>
-                                  </div>
-                                  <div className="text-right">
-                                    <span className={`inline-block px-2 py-1 rounded-full text-xs ${
-                                      donation.status === 'available' ? 'bg-blue-100 text-blue-800' :
-                                      donation.status === 'requested' ? 'bg-yellow-100 text-yellow-800' :
-                                      donation.status === 'matched' ? 'bg-purple-100 text-purple-800' :
-                                      'bg-green-100 text-green-800'
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Your Donations</CardTitle>
+                          <CardDescription>
+                            Track the status of your donations.
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          {isLoadingDonations ? (
+                            <div className="flex justify-center py-8">
+                              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            </div>
+                          ) : donations && donations.length > 0 ? (
+                            <div className="grid gap-4">
+                              {donations.map((donation: any) => (
+                                <div key={donation.id} className="border rounded-lg p-4">
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <h3 className="font-medium">{donation.itemName}</h3>
+                                      <p className="text-sm text-neutral-dark">{donation.description}</p>
+                                    </div>
+                                    <span className={`px-2 py-1 text-xs rounded-full ${
+                                      donation.status === 'available' ? 'bg-green-100 text-green-800' : 
+                                      donation.status === 'requested' ? 'bg-yellow-100 text-yellow-800' : 
+                                      'bg-blue-100 text-blue-800'
                                     }`}>
                                       {donation.status.charAt(0).toUpperCase() + donation.status.slice(1)}
                                     </span>
-                                    <p className="text-xs text-neutral-dark mt-1">
-                                      {new Date(donation.createdAt).toLocaleDateString()}
-                                    </p>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-center py-8 text-neutral-dark">
-                            You haven't made any donations yet.
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8 text-neutral-dark">
+                              You haven't made any donations yet.
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
 
                   <TabsContent value="events">
                     <Card>
                       <CardHeader>
                         <CardTitle>Upcoming Events</CardTitle>
                         <CardDescription>
-                          Join community cleanup drives and environmental initiatives.
+                          Join community events and earn social points.
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -361,26 +354,31 @@ export default function CustomerDashboard() {
                           <div className="grid gap-4">
                             {events.map((event) => (
                               <div key={event.id} className="border rounded-lg p-4">
-                                <div className="flex gap-4">
-                                  <div className="bg-primary/10 rounded-lg p-3 h-fit">
-                                    {event.status === 'upcoming' ? (
-                                      <CalendarClock className="h-6 w-6 text-primary" />
-                                    ) : (
-                                      <Calendar className="h-6 w-6 text-primary" />
-                                    )}
-                                  </div>
+                                <div className="flex justify-between items-start">
                                   <div>
-                                    <h3 className="font-semibold">{event.title}</h3>
-                                    <p className="text-sm text-neutral-dark mt-1">{event.description}</p>
-                                    <div className="flex flex-wrap gap-4 mt-2">
-                                      <div className="text-sm">
-                                        <span className="font-medium">Date:</span> {new Date(event.date).toLocaleDateString()} at {new Date(event.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                    <h3 className="font-medium">{event.title}</h3>
+                                    <p className="text-sm text-neutral-dark">{event.description}</p>
+                                    <div className="flex items-center gap-4 mt-2">
+                                      <div className="flex items-center gap-1 text-sm">
+                                        <CalendarClock size={16} />
+                                        <span>{new Date(event.date).toLocaleDateString()}</span>
                                       </div>
-                                      <div className="text-sm">
-                                        <span className="font-medium">Location:</span> {event.location.address}, {event.location.city}
+                                      <div className="flex items-center gap-1 text-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                          <circle cx="12" cy="10" r="3" />
+                                        </svg>
+                                        <span>{event.location.city}</span>
                                       </div>
                                     </div>
                                   </div>
+                                  <span className={`px-2 py-1 text-xs rounded-full ${
+                                    event.status === 'upcoming' ? 'bg-green-100 text-green-800' : 
+                                    event.status === 'ongoing' ? 'bg-yellow-100 text-yellow-800' : 
+                                    'bg-blue-100 text-blue-800'
+                                  }`}>
+                                    {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                                  </span>
                                 </div>
                               </div>
                             ))}
@@ -394,11 +392,12 @@ export default function CustomerDashboard() {
                     </Card>
                   </TabsContent>
                 </Tabs>
-              </div>
+              )}
             </div>
           </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
