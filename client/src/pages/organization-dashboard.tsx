@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { SocialPointsCard } from "@/components/dashboard/social-points-card";
 import { Button } from "@/components/ui/button";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -18,7 +19,8 @@ import {
   ClipboardList, 
   Gift,
   Calendar as CalendarIcon,
-  Trash2
+  Trash2,
+  Newspaper
 } from "lucide-react";
 
 type WasteReport = {
@@ -158,6 +160,8 @@ export default function OrganizationDashboard() {
                   <TabsTrigger value="events">Events</TabsTrigger>
                   <TabsTrigger value="waste-reports">Waste Reports</TabsTrigger>
                   <TabsTrigger value="donations">Donations</TabsTrigger>
+                  <TabsTrigger value="volunteers">Volunteers</TabsTrigger>
+                  <TabsTrigger value="awareness">Awareness</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="events">
@@ -350,12 +354,165 @@ export default function OrganizationDashboard() {
                     </CardContent>
                   </Card>
                 </TabsContent>
+                <TabsContent value="volunteers">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Event Volunteers</CardTitle>
+                      <CardDescription>
+                        Manage volunteers participating in your events.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {isLoadingEvents ? (
+                        <div className="flex justify-center py-8">
+                          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        </div>
+                      ) : organizationEvents.length > 0 ? (
+                        <div className="space-y-6">
+                          {organizationEvents.map((event: Event) => (
+                            <div key={event.id} className="border rounded-lg p-4">
+                              <div className="flex justify-between items-start">
+                                <div className="flex gap-4">
+                                  <div className="bg-primary/10 rounded-lg p-3 h-fit">
+                                    <Users className="h-6 w-6 text-primary" />
+                                  </div>
+                                  <div>
+                                    <h3 className="font-semibold">{event.title}</h3>
+                                    <p className="text-sm text-neutral-dark mt-1">
+                                      {new Date(event.date).toLocaleDateString('en-US', { 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric'
+                                      })}
+                                    </p>
+                                    
+                                    <div className="mt-4 bg-neutral-50 p-3 rounded-md">
+                                      <h4 className="text-sm font-medium mb-2">Volunteer List</h4>
+                                      <VolunteerList eventId={event.id} />
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex flex-col gap-2">
+                                  <Badge className="mb-2">
+                                    {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                                  </Badge>
+                                  <Button size="sm" variant="outline">
+                                    Export List
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                            <Users className="h-8 w-8 text-gray-400" />
+                          </div>
+                          <h3 className="text-lg font-medium mb-1">No active events</h3>
+                          <p className="text-sm text-gray-500 max-w-sm mx-auto mb-6">
+                            Create events first to start managing volunteers.
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="awareness">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Awareness Programs</CardTitle>
+                      <CardDescription>
+                        Create and manage educational content and awareness programs.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-6">
+                        <div className="p-4 bg-neutral-50 rounded-lg">
+                          <h3 className="font-medium mb-4">Create Awareness Content</h3>
+                          <div className="flex gap-4 flex-wrap">
+                            <Button variant="outline" className="flex items-center gap-2">
+                              <Loader2 className="h-4 w-4" />
+                              New Article
+                            </Button>
+                            <Button variant="outline" className="flex items-center gap-2">
+                              <Loader2 className="h-4 w-4" />
+                              New Video
+                            </Button>
+                            <Button variant="outline" className="flex items-center gap-2">
+                              <Loader2 className="h-4 w-4" />
+                              New Campaign
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="text-center py-8">
+                          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                            <Newspaper className="h-8 w-8 text-gray-400" />
+                          </div>
+                          <h3 className="text-lg font-medium mb-1">No awareness content yet</h3>
+                          <p className="text-sm text-gray-500 max-w-sm mx-auto mb-6">
+                            Start creating awareness content to educate the community about waste management.
+                          </p>
+                          <Button>Create Content</Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
               </Tabs>
             </div>
           </div>
         </div>
       </main>
       <Footer />
+    </div>
+  );
+}
+
+// Component to display volunteers for an event
+function VolunteerList({ eventId }: { eventId: number }) {
+  const { data: participants, isLoading } = useQuery({
+    queryKey: [`/api/events/${eventId}/participants`],
+    queryFn: async ({ queryKey }) => {
+      const res = await fetch(queryKey[0] as string);
+      if (!res.ok) throw new Error("Failed to fetch participants");
+      return await res.json();
+    },
+  });
+  
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-4">
+        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+      </div>
+    );
+  }
+  
+  if (!participants || participants.length === 0) {
+    return (
+      <p className="text-sm text-neutral-dark py-2">No volunteers registered yet.</p>
+    );
+  }
+  
+  return (
+    <div className="space-y-2">
+      {participants.map((participant: any) => (
+        <div key={participant.id} className="flex items-center justify-between border-b pb-2">
+          <div className="flex items-center gap-2">
+            <div className="bg-neutral-100 rounded-full w-8 h-8 flex items-center justify-center">
+              <Users className="h-4 w-4 text-neutral-500" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">{participant.fullName}</p>
+              <p className="text-xs text-neutral-dark">{participant.email}</p>
+            </div>
+          </div>
+          <Button variant="ghost" size="sm">Contact</Button>
+        </div>
+      ))}
     </div>
   );
 }

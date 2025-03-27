@@ -16,9 +16,10 @@ const eventFormSchema = insertEventSchema.extend({
   location: z.object({
     address: z.string().min(1, "Address is required"),
     city: z.string().min(1, "City is required"),
+    pinCode: z.string().min(1, "PIN code is required").optional().default(""),
   }),
   // Make sure we accept string for the date since that's what HTML inputs provide
-  date: z.string(),
+  date: z.string().min(1, "Event date is required"),
 });
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
@@ -36,6 +37,7 @@ export function EventForm() {
       location: {
         address: "",
         city: "",
+        pinCode: "",
       },
       maxParticipants: 0,
       image: "",
@@ -183,6 +185,20 @@ export function EventForm() {
         
         <FormField
           control={form.control}
+          name="location.pinCode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>PIN Code</FormLabel>
+              <FormControl>
+                <Input placeholder="PIN Code" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
           name="maxParticipants"
           render={({ field: { onChange, value, ...restField } }) => (
             <FormItem>
@@ -197,6 +213,28 @@ export function EventForm() {
                     const val = e.target.value !== "" ? parseInt(e.target.value) : 0;
                     onChange(!isNaN(val) ? val : 0);
                   }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="image"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Event Image URL (Optional)</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="URL to event image" 
+                  value={field.value || ''} 
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  disabled={field.disabled}
+                  name={field.name}
+                  ref={field.ref}
                 />
               </FormControl>
               <FormMessage />
