@@ -197,7 +197,10 @@ export default function DealerDashboard() {
                 activeItem={activeTab} 
                 setActiveItem={setActiveTab} 
               />
-              <SocialPointsCard points={user?.socialPoints || 0} />
+              <SocialPointsCard 
+                points={user?.socialPoints || 0} 
+                badges={['Certified Dealer', 'Waste Collector']} 
+              />
             </div>
 
             {/* Main Content */}
@@ -408,7 +411,7 @@ export default function DealerDashboard() {
                                 <div>
                                   <div className="flex items-center gap-2">
                                     <h3 className="font-semibold">{report.title}</h3>
-                                    <Badge variant="success" className="bg-green-100 text-green-800 hover:bg-green-100">
+                                    <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100">
                                       Completed
                                     </Badge>
                                   </div>

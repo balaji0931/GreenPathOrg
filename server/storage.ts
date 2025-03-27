@@ -61,6 +61,18 @@ export interface IStorage {
     activeMembers: number;
   }>;
   
+  // Environmental Impact Analytics
+  getEnvironmentalImpact(): Promise<{
+    wasteByCategory: { name: string; value: number }[];
+    wasteCollectionTrend: { name: string; value: number }[];
+    carbonOffset: number;
+    treesEquivalent: number;
+    waterSaved: number;
+    monthlyWasteData: { month: string; segregated: number; mixed: number }[];
+    donationsByCategory: { name: string; value: number }[];
+    socialImpactMetrics: { name: string; value: number }[];
+  }>;
+  
   // Session store
   sessionStore: session.SessionStore;
 }
@@ -345,6 +357,168 @@ export class MemStorage implements IStorage {
       itemsDonated,
       communityEvents,
       activeMembers
+    };
+  }
+  
+  async getEnvironmentalImpact(): Promise<{
+    wasteByCategory: { name: string; value: number }[];
+    wasteCollectionTrend: { name: string; value: number }[];
+    carbonOffset: number;
+    treesEquivalent: number;
+    waterSaved: number;
+    monthlyWasteData: { month: string; segregated: number; mixed: number }[];
+    donationsByCategory: { name: string; value: number }[];
+    socialImpactMetrics: { name: string; value: number }[];
+  }> {
+    // Calculate waste by category
+    const allWasteReports = Array.from(this.wasteReportsDb.values());
+    const completedReports = allWasteReports.filter(report => report.status === 'completed');
+    
+    // Calculate approximate waste category data based on waste reports
+    const plasticCount = completedReports.filter(report => 
+      report.title.toLowerCase().includes('plastic') || 
+      report.description.toLowerCase().includes('plastic')
+    ).length;
+    
+    const paperCount = completedReports.filter(report => 
+      report.title.toLowerCase().includes('paper') || 
+      report.description.toLowerCase().includes('paper')
+    ).length;
+    
+    const glassCount = completedReports.filter(report => 
+      report.title.toLowerCase().includes('glass') || 
+      report.description.toLowerCase().includes('glass')
+    ).length;
+    
+    const eWasteCount = completedReports.filter(report => 
+      report.title.toLowerCase().includes('electronic') || 
+      report.description.toLowerCase().includes('electronic') ||
+      report.title.toLowerCase().includes('e-waste') || 
+      report.description.toLowerCase().includes('e-waste')
+    ).length;
+    
+    const otherCount = completedReports.length - plasticCount - paperCount - glassCount - eWasteCount;
+    
+    const wasteByCategory = [
+      { name: 'Plastic', value: Math.max(plasticCount, 1) },
+      { name: 'Paper', value: Math.max(paperCount, 1) },
+      { name: 'Glass', value: Math.max(glassCount, 1) },
+      { name: 'E-Waste', value: Math.max(eWasteCount, 1) },
+      { name: 'Other', value: Math.max(otherCount, 1) }
+    ];
+    
+    // Generate waste collection trend by month
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentMonth = new Date().getMonth();
+    
+    const wasteCollectionTrend = [];
+    for (let i = 5; i >= 0; i--) {
+      const monthIndex = (currentMonth - i + 12) % 12;
+      const month = months[monthIndex];
+      
+      // Count reports from that month
+      const reportsCount = completedReports.filter(report => {
+        const reportDate = new Date(report.createdAt);
+        return reportDate.getMonth() === monthIndex;
+      }).length;
+      
+      wasteCollectionTrend.push({
+        name: month,
+        value: Math.max(reportsCount, 0) // Ensure non-negative
+      });
+    }
+    
+    // Calculate environmental impact metrics based on waste reports
+    const segregatedWaste = allWasteReports.filter(report => report.isSegregated && report.status === 'completed').length;
+    const totalWasteCollected = completedReports.length;
+    
+    // Approximations for environmental impact calculations
+    // Note: These are simplified calculations for demonstration purposes
+    const avgWastePerReport = 5; // kg
+    const totalWasteKg = totalWasteCollected * avgWastePerReport;
+    const carbonPerKg = 2.5; // CO2 kg saved per kg waste recycled
+    const carbonOffset = totalWasteKg * carbonPerKg;
+    
+    // Tree equivalence: 1 tree absorbs ~22kg CO2 per year
+    const treesEquivalent = Math.round(carbonOffset / 22);
+    
+    // Water saved: 7000 liters per ton of recycled paper
+    const paperTons = (paperCount * avgWastePerReport) / 1000;
+    const waterSaved = Math.round(paperTons * 7000);
+    
+    // Monthly segregated vs. mixed waste data
+    const monthlyWasteData = [];
+    for (let i = 5; i >= 0; i--) {
+      const monthIndex = (currentMonth - i + 12) % 12;
+      const month = months[monthIndex];
+      
+      // Get reports from that month
+      const monthReports = completedReports.filter(report => {
+        const reportDate = new Date(report.createdAt);
+        return reportDate.getMonth() === monthIndex;
+      });
+      
+      const segregated = monthReports.filter(report => report.isSegregated).length;
+      const mixed = monthReports.length - segregated;
+      
+      monthlyWasteData.push({
+        month,
+        segregated: Math.max(segregated, 0),
+        mixed: Math.max(mixed, 0)
+      });
+    }
+    
+    // Donations by category
+    const donations = Array.from(this.donationsDb.values());
+    const completedDonations = donations.filter(donation => donation.status === 'completed');
+    
+    const clothingCount = completedDonations.filter(donation => 
+      donation.category.toLowerCase().includes('cloth') || 
+      donation.description.toLowerCase().includes('cloth')
+    ).length;
+    
+    const furnitureCount = completedDonations.filter(donation => 
+      donation.category.toLowerCase().includes('furniture') || 
+      donation.description.toLowerCase().includes('furniture')
+    ).length;
+    
+    const electronicsCount = completedDonations.filter(donation => 
+      donation.category.toLowerCase().includes('electronic') || 
+      donation.description.toLowerCase().includes('electronic')
+    ).length;
+    
+    const booksCount = completedDonations.filter(donation => 
+      donation.category.toLowerCase().includes('book') || 
+      donation.description.toLowerCase().includes('book')
+    ).length;
+    
+    const otherDonations = completedDonations.length - clothingCount - furnitureCount - electronicsCount - booksCount;
+    
+    const donationsByCategory = [
+      { name: 'Clothing', value: Math.max(clothingCount, 1) },
+      { name: 'Furniture', value: Math.max(furnitureCount, 1) },
+      { name: 'Electronics', value: Math.max(electronicsCount, 1) },
+      { name: 'Books', value: Math.max(booksCount, 1) },
+      { name: 'Other', value: Math.max(otherDonations, 1) }
+    ];
+    
+    // Social impact metrics
+    const socialImpactMetrics = [
+      { name: 'Lives Impacted', value: completedDonations.length * 3 }, // Estimate 3 people impacted per donation
+      { name: 'Communities Reached', value: Math.ceil(completedReports.length / 5) }, // Rough estimate
+      { name: 'Volunteer Hours', value: this.eventsDb.size * 20 }, // Estimate 20 hours per event
+      { name: 'Social Initiatives', value: this.eventsDb.size }
+    ];
+    
+    return {
+      wasteByCategory,
+      wasteCollectionTrend,
+      carbonOffset,
+      treesEquivalent,
+      waterSaved,
+      monthlyWasteData,
+      donationsByCategory,
+      socialImpactMetrics
     };
   }
   

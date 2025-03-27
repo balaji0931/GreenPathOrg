@@ -14,6 +14,66 @@ import {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
   setupAuth(app);
+  
+  // Get all users (admin only)
+  app.get("/api/users", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || !req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      // Get users from all roles
+      const customers = await storage.getUsersByRole("customer");
+      const dealers = await storage.getUsersByRole("dealer");
+      const organizations = await storage.getUsersByRole("organization");
+      const admins = await storage.getUsersByRole("admin");
+      
+      // Combine all users and remove passwords
+      const allUsers = [...customers, ...dealers, ...organizations, ...admins].map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+      
+      res.json(allUsers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+  
+  // Update user role (admin only)
+  app.put("/api/users/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || !req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const userId = parseInt(req.params.id);
+      const { role } = req.body;
+      
+      // Validate role
+      if (!['customer', 'dealer', 'organization', 'admin'].includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+      
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Update user role
+      const updatedUser = await storage.updateUser(userId, { role });
+      
+      // Remove password from response
+      if (updatedUser) {
+        const { password, ...userWithoutPassword } = updatedUser;
+        res.json(userWithoutPassword);
+      } else {
+        res.status(500).json({ message: "Failed to update user" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update user role" });
+    }
+  });
 
   // GET stats
   app.get("/api/stats", async (req, res) => {
@@ -22,6 +82,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+  
+  // GET environmental impact data
+  app.get("/api/environmental-impact", async (req, res) => {
+    try {
+      // Admin and higher access only
+      if (!req.isAuthenticated() || !req.user || (req.user.role !== 'admin' && req.user.role !== 'organization')) {
+        return res.status(403).json({ message: "Admin or Organization access required" });
+      }
+      
+      const impactData = await storage.getEnvironmentalImpact();
+      res.json(impactData);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch environmental impact data" });
     }
   });
   
@@ -121,11 +196,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       let reports;
       
+      // For admins, show all reports from all statuses
+      if (req.user.role === 'admin') {
+        const pendingReports = await storage.getWasteReportsByStatus('pending');
+        const scheduledReports = await storage.getWasteReportsByStatus('scheduled');
+        const inProgressReports = await storage.getWasteReportsByStatus('in_progress');
+        const completedReports = await storage.getWasteReportsByStatus('completed');
+        const rejectedReports = await storage.getWasteReportsByStatus('rejected');
+        reports = [...pendingReports, ...scheduledReports, ...inProgressReports, ...completedReports, ...rejectedReports];
+      }
       // For dealers, show all pending reports
-      if (req.user.role === 'dealer') {
+      else if (req.user.role === 'dealer') {
         reports = await storage.getWasteReportsByStatus('pending');
       } 
-      // For organizations, show all reports
+      // For organizations, show all reports except completed/rejected
       else if (req.user.role === 'organization') {
         const pendingReports = await storage.getWasteReportsByStatus('pending');
         const scheduledReports = await storage.getWasteReportsByStatus('scheduled');
@@ -202,7 +286,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const userRole = req.user.role;
       
-      if (userRole === 'organization') {
+      if (userRole === 'admin') {
+        // Admins see all donations
+        const availableDonations = await storage.getAvailableDonations();
+        
+        // Get all users to get their donations
+        const customers = await storage.getUsersByRole("customer");
+        
+        // Get all user donations
+        let allDonations = [];
+        for (const customer of customers) {
+          const userDonations = await storage.getDonationsByUserId(customer.id);
+          allDonations = [...allDonations, ...userDonations];
+        }
+        
+        donations = allDonations;
+      } else if (userRole === 'organization') {
         // Organizations see all available donations
         donations = await storage.getAvailableDonations();
       } else {

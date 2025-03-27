@@ -11,6 +11,7 @@ import MediaPage from "@/pages/media-page";
 import CustomerDashboard from "@/pages/customer-dashboard";
 import DealerDashboard from "@/pages/dealer-dashboard";
 import OrganizationDashboard from "@/pages/organization-dashboard";
+import AdminDashboard from "@/pages/admin-dashboard";
 import { ProtectedRoute } from "@/lib/protected-route";
 
 function Router() {
@@ -32,6 +33,9 @@ function Router() {
       </Route>
       <Route path="/dashboard/organization">
         <ProtectedRoute path="/dashboard/organization" component={OrganizationDashboard} allowedRole="organization" />
+      </Route>
+      <Route path="/dashboard/admin">
+        <ProtectedRoute path="/dashboard/admin" component={AdminDashboard} allowedRole="admin" />
       </Route>
       
       {/* Fallback to 404 */}

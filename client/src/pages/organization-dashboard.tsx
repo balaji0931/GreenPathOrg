@@ -45,6 +45,7 @@ type Event = {
   };
   status: string;
   maxParticipants: number;
+  organizerId: number;
 };
 
 type Donation = {
@@ -144,7 +145,10 @@ export default function OrganizationDashboard() {
                 activeItem={activeTab} 
                 setActiveItem={setActiveTab} 
               />
-              <SocialPointsCard points={user?.socialPoints || 0} />
+              <SocialPointsCard 
+                points={user?.socialPoints || 0} 
+                badges={['Organization', 'Community Builder']} 
+              />
             </div>
 
             {/* Main Content */}

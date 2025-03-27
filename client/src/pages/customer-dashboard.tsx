@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarClock, Calendar, Loader2 } from "lucide-react";
 
@@ -81,17 +82,10 @@ export default function CustomerDashboard() {
                 <DashboardNav role="customer" activeItem={activeTab} setActiveItem={setActiveTab} />
               </div>
               
-              <div className="bg-white rounded-lg shadow-sm p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                    <span className="font-medium">{user?.socialPoints || 0} Points</span>
-                  </div>
-                  <a href="#" className="text-sm text-primary hover:underline">View Leaderboard &rarr;</a>
-                </div>
-              </div>
+              <SocialPointsCard 
+                points={user?.socialPoints || 0}
+                badges={['Beginner', 'Waste Warrior']}
+              />
             </div>
 
             {/* Main Content */}
@@ -115,15 +109,59 @@ export default function CustomerDashboard() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-center py-6 text-neutral-dark">
-                        No nearby activities found at the moment.
-                      </div>
+                      {isLoadingEvents ? (
+                        <div className="flex justify-center py-6">
+                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                        </div>
+                      ) : events && events.length > 0 ? (
+                        <div className="grid gap-4">
+                          {events.map((event) => (
+                            <div key={event.id} className="border rounded-lg p-4">
+                              <h3 className="font-medium">{event.title}</h3>
+                              <p className="text-sm text-neutral-dark mb-2">{event.description.substring(0, 100)}...</p>
+                              <div className="flex items-center gap-2 text-sm text-neutral-dark">
+                                <CalendarClock className="h-4 w-4" />
+                                <span>{new Date(event.date).toLocaleDateString()}</span>
+                              </div>
+                              <div className="flex justify-end mt-2">
+                                <button 
+                                  className="bg-primary text-white text-sm px-3 py-1 rounded hover:bg-primary-dark"
+                                  onClick={() => {
+                                    fetch(`/api/events/${event.id}/participants`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' }
+                                    })
+                                    .then(res => {
+                                      if (res.ok) {
+                                        queryClient.invalidateQueries({ queryKey: ['/api/events'] });
+                                        alert('Successfully joined event!');
+                                      } else {
+                                        throw new Error('Failed to join event');
+                                      }
+                                    })
+                                    .catch(err => alert(err.message));
+                                  }}
+                                >
+                                  Join
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-6 text-neutral-dark">
+                          No nearby activities found at the moment.
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                   
                   {/* Quick Action Cards */}
                   <div className="grid grid-cols-2 gap-4 mb-6">
-                    <Card className="flex flex-col items-center justify-center p-6 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer">
+                    <Card 
+                      className="flex flex-col items-center justify-center p-6 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+                      onClick={() => setActiveTab("waste-reports")}
+                    >
                       <div className="mb-4 text-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-primary">
                           <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -135,7 +173,10 @@ export default function CustomerDashboard() {
                       <h3 className="font-medium text-center">Schedule Pickup</h3>
                     </Card>
                     
-                    <Card className="flex flex-col items-center justify-center p-6 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer">
+                    <Card 
+                      className="flex flex-col items-center justify-center p-6 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+                      onClick={() => setActiveTab("waste-reports")}
+                    >
                       <div className="mb-4 text-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-primary">
                           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
@@ -146,7 +187,10 @@ export default function CustomerDashboard() {
                       <h3 className="font-medium text-center">Report Issue</h3>
                     </Card>
                     
-                    <Card className="flex flex-col items-center justify-center p-6 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer">
+                    <Card 
+                      className="flex flex-col items-center justify-center p-6 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+                      onClick={() => setActiveTab("events")}
+                    >
                       <div className="mb-4 text-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-primary">
                           <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -164,7 +208,10 @@ export default function CustomerDashboard() {
                       <h3 className="font-medium text-center">Join Events</h3>
                     </Card>
                     
-                    <Card className="flex flex-col items-center justify-center p-6 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer">
+                    <Card 
+                      className="flex flex-col items-center justify-center p-6 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+                      onClick={() => setActiveTab("donations")}
+                    >
                       <div className="mb-4 text-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-primary">
                           <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4" />
@@ -194,9 +241,44 @@ export default function CustomerDashboard() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-center py-6 text-neutral-dark">
-                        No activity found. Start by scheduling a pickup or reporting an issue!
-                      </div>
+                      {(isLoadingReports || isLoadingDonations) ? (
+                        <div className="flex justify-center py-6">
+                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                        </div>
+                      ) : (
+                        <div>
+                          {wasteReports && wasteReports.length > 0 ? (
+                            <div className="space-y-4 mb-4">
+                              <h3 className="font-medium">Recent Waste Reports</h3>
+                              {wasteReports.slice(0, 2).map((report: any) => (
+                                <div key={report.id} className="border rounded-lg p-3 text-sm">
+                                  <div className="font-medium">{report.title}</div>
+                                  <div className="text-neutral-dark">Status: {report.status}</div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                          
+                          {donations && donations.length > 0 ? (
+                            <div className="space-y-4">
+                              <h3 className="font-medium">Recent Donations</h3>
+                              {donations.slice(0, 2).map((donation: any) => (
+                                <div key={donation.id} className="border rounded-lg p-3 text-sm">
+                                  <div className="font-medium">{donation.itemName}</div>
+                                  <div className="text-neutral-dark">Status: {donation.status}</div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                          
+                          {(!wasteReports || wasteReports.length === 0) && 
+                           (!donations || donations.length === 0) && (
+                            <div className="text-center py-6 text-neutral-dark">
+                              No activity found. Start by scheduling a pickup or donating items!
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                   
@@ -216,15 +298,15 @@ export default function CustomerDashboard() {
                     <CardContent>
                       <div className="grid grid-cols-3 gap-4 text-center">
                         <div className="bg-gray-100 p-6 rounded-lg">
-                          <div className="text-3xl font-bold mb-1">0</div>
+                          <div className="text-3xl font-bold mb-1">{wasteReports?.length || 0}</div>
                           <div className="text-sm text-neutral-dark">Pickups</div>
                         </div>
                         <div className="bg-gray-100 p-6 rounded-lg">
-                          <div className="text-3xl font-bold mb-1">0</div>
-                          <div className="text-sm text-neutral-dark">Reports</div>
+                          <div className="text-3xl font-bold mb-1">{donations?.length || 0}</div>
+                          <div className="text-sm text-neutral-dark">Donations</div>
                         </div>
                         <div className="bg-gray-100 p-6 rounded-lg">
-                          <div className="text-3xl font-bold mb-1">0</div>
+                          <div className="text-3xl font-bold mb-1">{user?.socialPoints || 0}</div>
                           <div className="text-sm text-neutral-dark">Points</div>
                         </div>
                       </div>

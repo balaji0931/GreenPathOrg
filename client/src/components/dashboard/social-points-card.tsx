@@ -1,57 +1,60 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Award, Gift, Trash2, Calendar } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 interface SocialPointsCardProps {
   points: number;
+  badges: string[];
 }
 
-export function SocialPointsCard({ points }: SocialPointsCardProps) {
-  const nextLevel = Math.ceil(points / 100) * 100;
-  const progress = (points % 100) / 100 * 100;
-  
-  const activities = [
-    { icon: <Trash2 className="h-4 w-4 text-primary" />, name: "Report Waste", points: 10 },
-    { icon: <Gift className="h-4 w-4 text-[#FFC107]" />, name: "Make Donation", points: 25 },
-    { icon: <Calendar className="h-4 w-4 text-[#1976D2]" />, name: "Join Event", points: 50 },
-  ];
-
+export function SocialPointsCard({ points, badges }: SocialPointsCardProps) {
   return (
-    <Card className="bg-white">
-      <CardContent className="p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Award className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold">Social Points</h3>
-        </div>
-        
-        <div className="flex items-baseline gap-1 mb-1">
-          <span className="text-3xl font-bold text-primary">{points}</span>
-          <span className="text-neutral-dark">points</span>
-        </div>
-        
-        <div className="space-y-2 mb-6">
-          <div className="flex justify-between text-sm">
-            <span>Level {Math.floor(points / 100)}</span>
-            <span>Level {Math.floor(points / 100) + 1}</span>
+    <Card className="bg-white rounded-lg shadow-sm mb-4">
+      <CardContent className="p-4">
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-medium mb-2">Social Points</h3>
+            <div className="flex items-center">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="text-primary mr-2"
+              >
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+              <span className="text-2xl font-bold">{points}</span>
+            </div>
           </div>
-          <Progress value={progress} className="h-2" />
-          <p className="text-xs text-neutral-dark">
-            {nextLevel - points} points to reach next level
-          </p>
-        </div>
-        
-        <div>
-          <h4 className="text-sm font-medium mb-2">Earn Points</h4>
-          <div className="space-y-2">
-            {activities.map((activity, index) => (
-              <div key={index} className="flex justify-between items-center text-sm">
-                <div className="flex items-center gap-2">
-                  {activity.icon}
-                  <span>{activity.name}</span>
-                </div>
-                <span className="font-medium">+{activity.points}</span>
-              </div>
-            ))}
+          
+          <div>
+            <h3 className="font-medium mb-2">Badges</h3>
+            <div className="flex flex-wrap gap-2">
+              {badges.map((badge, i) => (
+                <Badge key={i} variant="outline" className="bg-primary/10">
+                  {badge}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          
+          <div className="pt-2">
+            <h4 className="text-sm font-medium mb-1">Next badge</h4>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div 
+                className="bg-primary h-2.5 rounded-full" 
+                style={{ width: `${Math.min(points / 10, 100)}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>{points}/100 points</span>
+              <span>Expert Recycler</span>
+            </div>
           </div>
         </div>
       </CardContent>
