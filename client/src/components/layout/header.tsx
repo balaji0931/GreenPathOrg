@@ -79,16 +79,16 @@ export function Header() {
             </>
           ) : (
             <>
-              <Link href="/auth">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+              <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white" asChild>
+                <Link href="/auth">
                   Login
-                </Button>
-              </Link>
-              <Link href="/auth">
-                <Button variant="default" className="hidden md:inline-flex">
+                </Link>
+              </Button>
+              <Button variant="default" className="hidden md:inline-flex" asChild>
+                <Link href="/auth">
                   Register
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </>
           )}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>

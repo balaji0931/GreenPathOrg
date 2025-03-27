@@ -27,12 +27,14 @@ export function DashboardNav({ role, activeItem, setActiveItem }: DashboardNavPr
     switch (role) {
       case "customer":
         return [
+          { id: "dashboard", label: "Dashboard", icon: <BarChart3 className="h-5 w-5" /> },
           { id: "waste-reports", label: "Waste Reports", icon: <Trash2 className="h-5 w-5" /> },
           { id: "donations", label: "Donations", icon: <Gift className="h-5 w-5" /> },
           { id: "events", label: "Events", icon: <Calendar className="h-5 w-5" /> },
         ];
       case "dealer":
         return [
+          { id: "dashboard", label: "Dashboard", icon: <BarChart3 className="h-5 w-5" /> },
           { id: "pending-pickups", label: "Pending Pickups", icon: <ClipboardList className="h-5 w-5" /> },
           { id: "accepted-pickups", label: "Accepted Pickups", icon: <Package className="h-5 w-5" /> },
           { id: "completed-pickups", label: "Completed Pickups", icon: <BarChart3 className="h-5 w-5" /> },
@@ -40,6 +42,7 @@ export function DashboardNav({ role, activeItem, setActiveItem }: DashboardNavPr
         ];
       case "organization":
         return [
+          { id: "dashboard", label: "Dashboard", icon: <BarChart3 className="h-5 w-5" /> },
           { id: "events", label: "Events", icon: <Calendar className="h-5 w-5" /> },
           { id: "waste-reports", label: "Waste Reports", icon: <Trash2 className="h-5 w-5" /> },
           { id: "donations", label: "Donations", icon: <Gift className="h-5 w-5" /> },
