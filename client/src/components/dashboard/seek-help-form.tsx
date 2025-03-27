@@ -36,7 +36,11 @@ const helpRequestSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long"),
   description: z.string().min(10, "Please provide more details about what help you need"),
   helpType: z.string().min(1, "Please select a help type"),
-  location: z.string().min(5, "Please provide the location"),
+  location: z.object({
+    address: z.string().min(5, "Address is required"),
+    city: z.string().min(1, "City is required"),
+    pinCode: z.string().min(1, "PIN code is required"),
+  }),
   date: z.date({
     required_error: "Please select a date",
   }),
@@ -71,7 +75,11 @@ export function SeekHelpForm() {
       title: "",
       description: "",
       helpType: "",
-      location: "",
+      location: {
+        address: "",
+        city: "",
+        pinCode: "",
+      },
       maxParticipants: "",
       skills: [],
       isUrgent: false,
@@ -85,11 +93,7 @@ export function SeekHelpForm() {
         title: data.title,
         description: data.description,
         helpType: data.helpType,
-        location: { 
-          basicAddress: data.location, 
-          city: "City", 
-          pinCode: "123456" 
-        },
+        location: data.location,
         scheduledDate: data.date.toISOString(),
         maxParticipants: parseInt(data.maxParticipants),
         skills: data.skills || [],
@@ -186,25 +190,58 @@ export function SeekHelpForm() {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <div className="relative">
-                    <FormControl>
-                      <Input placeholder="Enter the address or location" {...field} />
-                    </FormControl>
-                    <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  </div>
-                  <FormDescription>
-                    Where will people need to go to help?
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-4">
+              <h3 className="text-md font-medium">Location</h3>
+              <FormField
+                control={form.control}
+                name="location.address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <div className="relative">
+                      <FormControl>
+                        <Input placeholder="Street address" {...field} />
+                      </FormControl>
+                      <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="location.city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <FormControl>
+                        <Input placeholder="City" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="location.pinCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>PIN Code</FormLabel>
+                      <FormControl>
+                        <Input placeholder="PIN Code" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormDescription>
+                Where will people need to go to help?
+              </FormDescription>
+            </div>
 
             <FormField
               control={form.control}

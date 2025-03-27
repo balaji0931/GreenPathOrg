@@ -17,7 +17,7 @@ const donationFormSchema = insertDonationSchema.extend({
   condition: z.string().min(1, "Please specify the condition"),
   quantity: z.string().min(1, "Please specify the quantity"),
   location: z.object({
-    basicAddress: z.string().min(1, "Address is required"),
+    address: z.string().min(1, "Address is required"),
     city: z.string().min(1, "City is required"),
     pinCode: z.string().min(1, "PIN code is required"),
   })
@@ -39,7 +39,7 @@ export function DonationForm() {
       condition: "",
       quantity: "1",
       location: {
-        basicAddress: "",
+        address: "",
         city: "",
         pinCode: ""
       }
@@ -204,7 +204,7 @@ export function DonationForm() {
           
           <FormField
             control={form.control}
-            name="location.basicAddress"
+            name="location.address"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Address</FormLabel>

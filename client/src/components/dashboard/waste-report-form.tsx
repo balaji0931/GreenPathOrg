@@ -17,6 +17,7 @@ const wasteReportFormSchema = insertWasteReportSchema.extend({
   location: z.object({
     address: z.string().min(1, "Address is required"),
     city: z.string().min(1, "City is required"),
+    pinCode: z.string().min(5, "PIN code must be at least 5 characters").max(10, "PIN code too long").optional(),
     coordinates: z.object({
       lat: z.number().optional(),
       lng: z.number().optional(),
@@ -37,6 +38,7 @@ export function WasteReportForm() {
       location: {
         address: "",
         city: "",
+        pinCode: "",
       },
       images: [],
       isSegregated: false,
@@ -112,7 +114,7 @@ export function WasteReportForm() {
           )}
         />
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col space-y-4">
           <FormField
             control={form.control}
             name="location.address"
@@ -127,19 +129,35 @@ export function WasteReportForm() {
             )}
           />
           
-          <FormField
-            control={form.control}
-            name="location.city"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>City</FormLabel>
-                <FormControl>
-                  <Input placeholder="Your city" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="location.city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your city" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="location.pinCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>PIN Code</FormLabel>
+                  <FormControl>
+                    <Input placeholder="6-digit PIN code" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
         
         <FormField
@@ -155,7 +173,7 @@ export function WasteReportForm() {
               </div>
               <FormControl>
                 <Switch
-                  checked={field.value}
+                  checked={field.value || false}
                   onCheckedChange={field.onChange}
                 />
               </FormControl>
