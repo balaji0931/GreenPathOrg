@@ -50,10 +50,12 @@ export function DashboardNav({ role, activeItem, setActiveItem }: DashboardNavPr
           { id: "dashboard", label: "Dashboard", icon: <BarChart3 className="h-5 w-5" /> },
           { id: "pending-pickups", label: "Pending Pickups", icon: <ClipboardList className="h-5 w-5" /> },
           { id: "accepted-pickups", label: "Accepted Pickups", icon: <Package className="h-5 w-5" /> },
-          { id: "completed-pickups", label: "Completed Pickups", icon: <BarChart3 className="h-5 w-5" /> },
-          { id: "schedule", label: "Schedule", icon: <Calendar className="h-5 w-5" /> },
+          { id: "completed-pickups", label: "Completed Pickups", icon: <Clock className="h-5 w-5" /> },
           { id: "events", label: "Community Events", icon: <Calendar className="h-5 w-5" /> },
-          { id: "issues", label: "Issues", icon: <AlertTriangle className="h-5 w-5" /> },
+          { id: "donate", label: "Donate Items", icon: <Gift className="h-5 w-5" /> },
+          { id: "raise-issue", label: "Raise Issue", icon: <AlertTriangle className="h-5 w-5" /> },
+          { id: "seek-help", label: "Seek Help", icon: <HelpCircle className="h-5 w-5" /> },
+          { id: "leaderboard", label: "Leaderboard", icon: <Trophy className="h-5 w-5" /> },
           { id: "feedback", label: "Feedback", icon: <MessageSquare className="h-5 w-5" /> },
         ];
       case "organization":

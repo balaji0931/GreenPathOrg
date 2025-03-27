@@ -1,16 +1,24 @@
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import { DonationForm } from "@/components/dashboard/donation-form";
+import { RaiseIssueForm } from "@/components/dashboard/raise-issue-form";
+import { SeekHelpForm } from "@/components/dashboard/seek-help-form";
+import { Leaderboard } from "@/components/dashboard/leaderboard";
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { SocialPointsCard } from "@/components/dashboard/social-points-card";
 import { Button } from "@/components/ui/button";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Calendar, CheckCircle2, XCircle, Clock, Truck } from "lucide-react";
+import { 
+  Loader2, Calendar, CheckCircle2, XCircle, Clock, Truck, 
+  Trophy, Gift, AlertTriangle, Package, Users, HeartHandshake, 
+  Plus, Filter, AlertCircle
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -55,6 +63,9 @@ export default function DealerDashboard() {
   const [activeTab, setActiveTab] = useState("pending-pickups");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [openReportId, setOpenReportId] = useState<number | null>(null);
+  const [isDonationDialogOpen, setIsDonationDialogOpen] = useState(false);
+  const [isRaiseIssueDialogOpen, setIsRaiseIssueDialogOpen] = useState(false);
+  const [isSeekHelpDialogOpen, setIsSeekHelpDialogOpen] = useState(false);
 
   const { data: pendingReports, isLoading: isLoadingPending } = useQuery<WasteReport[]>({
     queryKey: ["/api/waste-reports"],
@@ -211,6 +222,10 @@ export default function DealerDashboard() {
                   <TabsTrigger value="accepted-pickups">Accepted Pickups</TabsTrigger>
                   <TabsTrigger value="completed-pickups">Completed Pickups</TabsTrigger>
                   <TabsTrigger value="events">Community Events</TabsTrigger>
+                  <TabsTrigger value="donate">Donate</TabsTrigger>
+                  <TabsTrigger value="raise-issue">Raise Issue</TabsTrigger>
+                  <TabsTrigger value="seek-help">Seek Help</TabsTrigger>
+                  <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="pending-pickups">
@@ -485,12 +500,97 @@ export default function DealerDashboard() {
                     </CardContent>
                   </Card>
                 </TabsContent>
+
+                <TabsContent value="donate">
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <Gift className="h-5 w-5 text-primary" />
+                        <CardTitle>Donate Items</CardTitle>
+                      </div>
+                      <CardDescription>
+                        Donate unused items to those in need and help reduce waste
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <DonationForm />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="raise-issue">
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-primary" />
+                        <CardTitle>Report an Issue</CardTitle>
+                      </div>
+                      <CardDescription>
+                        Help keep our environment clean by reporting issues
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <RaiseIssueForm />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="seek-help">
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <HeartHandshake className="h-5 w-5 text-primary" />
+                        <CardTitle>Request Community Help</CardTitle>
+                      </div>
+                      <CardDescription>
+                        Ask for community support with environmental initiatives
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <SeekHelpForm />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="leaderboard">
+                  <Leaderboard />
+                </TabsContent>
               </Tabs>
             </div>
           </div>
         </div>
       </main>
       <Footer />
+      
+      {/* Donation Dialog */}
+      <Dialog open={isDonationDialogOpen} onOpenChange={setIsDonationDialogOpen}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Donate Items</DialogTitle>
+          </DialogHeader>
+          <DonationForm />
+        </DialogContent>
+      </Dialog>
+
+      {/* Raise Issue Dialog */}
+      <Dialog open={isRaiseIssueDialogOpen} onOpenChange={setIsRaiseIssueDialogOpen}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Raise an Issue</DialogTitle>
+          </DialogHeader>
+          <RaiseIssueForm />
+        </DialogContent>
+      </Dialog>
+
+      {/* Seek Help Dialog */}
+      <Dialog open={isSeekHelpDialogOpen} onOpenChange={setIsSeekHelpDialogOpen}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Request Community Help</DialogTitle>
+          </DialogHeader>
+          <SeekHelpForm />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
