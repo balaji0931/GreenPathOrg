@@ -4,7 +4,10 @@ import {
   donations, type Donation, type InsertDonation,
   events, type Event, type InsertEvent,
   eventParticipants, type EventParticipant, type InsertEventParticipant,
-  mediaContent, type MediaContent, type InsertMediaContent
+  mediaContent, type MediaContent, type InsertMediaContent,
+  issues, type Issue, type InsertIssue,
+  feedback, type Feedback, type InsertFeedback,
+  helpRequests, type HelpRequest, type InsertHelpRequest
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -53,6 +56,31 @@ export interface IStorage {
   getAllMediaContent(): Promise<MediaContent[]>;
   getMediaContentByType(contentType: string): Promise<MediaContent[]>;
   
+  // Issue methods
+  createIssue(issue: InsertIssue): Promise<Issue>;
+  getIssue(id: number): Promise<Issue | undefined>;
+  getIssuesByUserId(userId: number): Promise<Issue[]>;
+  getIssuesByStatus(status: string): Promise<Issue[]>;
+  getAllIssues(): Promise<Issue[]>;
+  updateIssue(id: number, issue: Partial<Issue>): Promise<Issue | undefined>;
+  assignIssueToOrganization(issueId: number, organizationId: number): Promise<Issue | undefined>;
+  
+  // Feedback methods
+  createFeedback(feedback: InsertFeedback): Promise<Feedback>;
+  getFeedback(id: number): Promise<Feedback | undefined>;
+  getFeedbackByUserId(userId: number): Promise<Feedback[]>;
+  getAllFeedback(): Promise<Feedback[]>;
+  updateFeedback(id: number, feedback: Partial<Feedback>): Promise<Feedback | undefined>;
+  assignFeedbackToUser(feedbackId: number, userId: number): Promise<Feedback | undefined>;
+  
+  // Help Request methods
+  createHelpRequest(helpRequest: InsertHelpRequest): Promise<HelpRequest>;
+  getHelpRequest(id: number): Promise<HelpRequest | undefined>;
+  getHelpRequestsByUserId(userId: number): Promise<HelpRequest[]>;
+  getHelpRequestsByStatus(status: string): Promise<HelpRequest[]>;
+  getAllHelpRequests(): Promise<HelpRequest[]>;
+  updateHelpRequest(id: number, helpRequest: Partial<HelpRequest>): Promise<HelpRequest | undefined>;
+  
   // Stats
   getStats(): Promise<{ 
     pickupsCompleted: number; 
@@ -84,6 +112,9 @@ export class MemStorage implements IStorage {
   private eventsDb: Map<number, Event>;
   private eventParticipantsDb: Map<number, EventParticipant>;
   private mediaContentDb: Map<number, MediaContent>;
+  private issuesDb: Map<number, Issue>;
+  private feedbackDb: Map<number, Feedback>;
+  private helpRequestsDb: Map<number, HelpRequest>;
   
   currentUserId: number;
   currentWasteReportId: number;
@@ -91,6 +122,9 @@ export class MemStorage implements IStorage {
   currentEventId: number;
   currentEventParticipantId: number;
   currentMediaContentId: number;
+  currentIssueId: number;
+  currentFeedbackId: number;
+  currentHelpRequestId: number;
   sessionStore: session.Store;
 
   constructor() {
@@ -101,6 +135,9 @@ export class MemStorage implements IStorage {
     this.eventsDb = new Map();
     this.eventParticipantsDb = new Map();
     this.mediaContentDb = new Map();
+    this.issuesDb = new Map();
+    this.feedbackDb = new Map();
+    this.helpRequestsDb = new Map();
     
     // Initialize IDs
     this.currentUserId = 1;
@@ -109,6 +146,9 @@ export class MemStorage implements IStorage {
     this.currentEventId = 1;
     this.currentEventParticipantId = 1;
     this.currentMediaContentId = 1;
+    this.currentIssueId = 1;
+    this.currentFeedbackId = 1;
+    this.currentHelpRequestId = 1;
     
     // Initialize session store
     this.sessionStore = new MemoryStore({
@@ -359,6 +399,165 @@ export class MemStorage implements IStorage {
     return Array.from(this.mediaContentDb.values()).filter(
       content => content.contentType === contentType && content.published
     );
+  }
+  
+  // Issue methods
+  async createIssue(issue: InsertIssue): Promise<Issue> {
+    const id = this.currentIssueId++;
+    const now = new Date();
+    const newIssue: Issue = { 
+      ...issue, 
+      id, 
+      createdAt: now,
+      assignedOrganizationId: null,
+      status: (issue.status || "pending") as "pending" | "assigned" | "in_progress" | "resolved" | "rejected",
+      images: issue.images || null,
+      isUrgent: issue.isUrgent || false,
+      requestCommunityHelp: issue.requestCommunityHelp || false
+    };
+    this.issuesDb.set(id, newIssue);
+    return newIssue;
+  }
+  
+  async getIssue(id: number): Promise<Issue | undefined> {
+    return this.issuesDb.get(id);
+  }
+  
+  async getIssuesByUserId(userId: number): Promise<Issue[]> {
+    return Array.from(this.issuesDb.values()).filter(
+      issue => issue.userId === userId
+    );
+  }
+  
+  async getIssuesByStatus(status: string): Promise<Issue[]> {
+    return Array.from(this.issuesDb.values()).filter(
+      issue => issue.status === status
+    );
+  }
+  
+  async getAllIssues(): Promise<Issue[]> {
+    return Array.from(this.issuesDb.values());
+  }
+  
+  async updateIssue(id: number, issueData: Partial<Issue>): Promise<Issue | undefined> {
+    const issue = this.issuesDb.get(id);
+    if (!issue) return undefined;
+    
+    const updatedIssue = { ...issue, ...issueData };
+    this.issuesDb.set(id, updatedIssue);
+    return updatedIssue;
+  }
+  
+  async assignIssueToOrganization(issueId: number, organizationId: number): Promise<Issue | undefined> {
+    const issue = this.issuesDb.get(issueId);
+    if (!issue) return undefined;
+    
+    const updatedIssue = { 
+      ...issue, 
+      assignedOrganizationId: organizationId,
+      status: "assigned" as "pending" | "assigned" | "in_progress" | "resolved" | "rejected"
+    };
+    this.issuesDb.set(issueId, updatedIssue);
+    return updatedIssue;
+  }
+  
+  // Feedback methods
+  async createFeedback(feedback: InsertFeedback): Promise<Feedback> {
+    const id = this.currentFeedbackId++;
+    const now = new Date();
+    const newFeedback: Feedback = { 
+      ...feedback, 
+      id, 
+      createdAt: now,
+      status: 'unread',
+      assignedToId: null
+    };
+    this.feedbackDb.set(id, newFeedback);
+    return newFeedback;
+  }
+  
+  async getFeedback(id: number): Promise<Feedback | undefined> {
+    return this.feedbackDb.get(id);
+  }
+  
+  async getFeedbackByUserId(userId: number): Promise<Feedback[]> {
+    return Array.from(this.feedbackDb.values()).filter(
+      feedback => feedback.userId === userId
+    );
+  }
+  
+  async getAllFeedback(): Promise<Feedback[]> {
+    return Array.from(this.feedbackDb.values());
+  }
+  
+  async updateFeedback(id: number, feedbackData: Partial<Feedback>): Promise<Feedback | undefined> {
+    const feedback = this.feedbackDb.get(id);
+    if (!feedback) return undefined;
+    
+    const updatedFeedback = { ...feedback, ...feedbackData };
+    this.feedbackDb.set(id, updatedFeedback);
+    return updatedFeedback;
+  }
+  
+  async assignFeedbackToUser(feedbackId: number, userId: number): Promise<Feedback | undefined> {
+    const feedback = this.feedbackDb.get(feedbackId);
+    if (!feedback) return undefined;
+    
+    const updatedFeedback = { 
+      ...feedback, 
+      assignedToId: userId,
+      status: 'assigned'
+    };
+    this.feedbackDb.set(feedbackId, updatedFeedback);
+    return updatedFeedback;
+  }
+  
+  // Help Request methods
+  async createHelpRequest(helpRequest: InsertHelpRequest): Promise<HelpRequest> {
+    const id = this.currentHelpRequestId++;
+    const now = new Date();
+    const newHelpRequest: HelpRequest = { 
+      ...helpRequest, 
+      id, 
+      createdAt: now,
+      status: (helpRequest.status || "pending") as "pending" | "approved" | "in_progress" | "completed" | "rejected",
+      skills: helpRequest.skills || null,
+      isUrgent: helpRequest.isUrgent || false,
+      scheduledDate: helpRequest.scheduledDate || now,
+      maxParticipants: helpRequest.maxParticipants || null,
+      helpType: helpRequest.helpType || "general"
+    };
+    this.helpRequestsDb.set(id, newHelpRequest);
+    return newHelpRequest;
+  }
+  
+  async getHelpRequest(id: number): Promise<HelpRequest | undefined> {
+    return this.helpRequestsDb.get(id);
+  }
+  
+  async getHelpRequestsByUserId(userId: number): Promise<HelpRequest[]> {
+    return Array.from(this.helpRequestsDb.values()).filter(
+      helpRequest => helpRequest.userId === userId
+    );
+  }
+  
+  async getHelpRequestsByStatus(status: string): Promise<HelpRequest[]> {
+    return Array.from(this.helpRequestsDb.values()).filter(
+      helpRequest => helpRequest.status === status
+    );
+  }
+  
+  async getAllHelpRequests(): Promise<HelpRequest[]> {
+    return Array.from(this.helpRequestsDb.values());
+  }
+  
+  async updateHelpRequest(id: number, helpRequestData: Partial<HelpRequest>): Promise<HelpRequest | undefined> {
+    const helpRequest = this.helpRequestsDb.get(id);
+    if (!helpRequest) return undefined;
+    
+    const updatedHelpRequest = { ...helpRequest, ...helpRequestData };
+    this.helpRequestsDb.set(id, updatedHelpRequest);
+    return updatedHelpRequest;
   }
   
   // Stats

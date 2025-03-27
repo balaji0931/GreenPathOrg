@@ -14,6 +14,15 @@ export const eventStatusEnum = pgEnum('event_status', ['upcoming', 'ongoing', 'c
 // Enum for donation status
 export const donationStatusEnum = pgEnum('donation_status', ['available', 'requested', 'matched', 'completed']);
 
+// Enum for issue status
+export const issueStatusEnum = pgEnum('issue_status', ['pending', 'assigned', 'in_progress', 'resolved', 'rejected']);
+
+// Enum for feedback type
+export const feedbackTypeEnum = pgEnum('feedback_type', ['pickup_service', 'donation_process', 'app_experience', 'customer_service', 'general']);
+
+// Enum for help request status
+export const helpRequestStatusEnum = pgEnum('help_request_status', ['pending', 'approved', 'in_progress', 'completed', 'rejected']);
+
 // Users table
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -91,6 +100,50 @@ export const mediaContent = pgTable("media_content", {
   published: boolean("published").default(true),
 });
 
+// Issues table
+export const issues = pgTable("issues", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  issueType: text("issue_type").notNull(),
+  location: json("location").notNull(),
+  images: text("images").array(),
+  status: issueStatusEnum("status").notNull().default('pending'),
+  createdAt: timestamp("created_at").defaultNow(),
+  assignedOrganizationId: integer("assigned_organization_id").references(() => users.id),
+  isUrgent: boolean("is_urgent").default(false),
+  requestCommunityHelp: boolean("request_community_help").default(false),
+});
+
+// Feedback table
+export const feedback = pgTable("feedback", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  feedbackType: feedbackTypeEnum("feedback_type").notNull(),
+  rating: integer("rating").notNull(),
+  comments: text("comments").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  status: text("status").default('unread'),
+  assignedToId: integer("assigned_to_id").references(() => users.id),
+});
+
+// Help Requests table
+export const helpRequests = pgTable("help_requests", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  helpType: text("help_type").notNull(),
+  location: json("location").notNull(),
+  status: helpRequestStatusEnum("status").notNull().default('pending'),
+  createdAt: timestamp("created_at").defaultNow(),
+  scheduledDate: timestamp("scheduled_date").notNull(),
+  maxParticipants: integer("max_participants"),
+  skills: text("skills").array(),
+  isUrgent: boolean("is_urgent").default(false),
+});
+
 // Create insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -126,6 +179,24 @@ export const insertMediaContentSchema = createInsertSchema(mediaContent).omit({
   createdAt: true,
 });
 
+export const insertIssueSchema = createInsertSchema(issues).omit({
+  id: true,
+  createdAt: true,
+  assignedOrganizationId: true,
+});
+
+export const insertFeedbackSchema = createInsertSchema(feedback).omit({
+  id: true,
+  createdAt: true,
+  status: true,
+  assignedToId: true,
+});
+
+export const insertHelpRequestSchema = createInsertSchema(helpRequests).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Address validation schema
 export const addressSchema = z.object({
   basicAddress: z.string().min(1, "Address is required"),
@@ -152,5 +223,14 @@ export type EventParticipant = typeof eventParticipants.$inferSelect;
 
 export type InsertMediaContent = z.infer<typeof insertMediaContentSchema>;
 export type MediaContent = typeof mediaContent.$inferSelect;
+
+export type InsertIssue = z.infer<typeof insertIssueSchema>;
+export type Issue = typeof issues.$inferSelect;
+
+export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
+export type Feedback = typeof feedback.$inferSelect;
+
+export type InsertHelpRequest = z.infer<typeof insertHelpRequestSchema>;
+export type HelpRequest = typeof helpRequests.$inferSelect;
 
 export type Address = z.infer<typeof addressSchema>;

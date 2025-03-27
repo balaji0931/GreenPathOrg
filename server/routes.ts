@@ -9,7 +9,10 @@ import {
   insertDonationSchema,
   insertEventSchema,
   insertEventParticipantSchema,
-  insertMediaContentSchema
+  insertMediaContentSchema,
+  insertIssueSchema,
+  insertFeedbackSchema,
+  insertHelpRequestSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -504,6 +507,306 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json({ message: "Successfully left the event" });
     } catch (error) {
       res.status(500).json({ message: "Failed to leave event" });
+    }
+  });
+
+  // Issue routes
+  app.get("/api/issues", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || !req.user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const userRole = req.user.role;
+      const userId = req.user.id;
+      let issues;
+      
+      if (userRole === 'admin') {
+        // Admins see all issues
+        issues = await storage.getAllIssues();
+      } else if (userRole === 'organization') {
+        // Organizations see assigned issues or pending issues
+        const assignedIssues = await storage.getIssuesByStatus('assigned');
+        const inProgressIssues = await storage.getIssuesByStatus('in_progress');
+        const pendingIssues = await storage.getIssuesByStatus('pending');
+        
+        // Filter assigned issues for this organization
+        const orgAssignedIssues = assignedIssues.filter(
+          issue => issue.assignedOrganizationId === userId
+        );
+        
+        // Filter in-progress issues for this organization
+        const orgInProgressIssues = inProgressIssues.filter(
+          issue => issue.assignedOrganizationId === userId
+        );
+        
+        issues = [...orgAssignedIssues, ...orgInProgressIssues, ...pendingIssues];
+      } else {
+        // Customers see their own issues
+        issues = await storage.getIssuesByUserId(userId);
+      }
+      
+      res.json(issues);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch issues" });
+    }
+  });
+  
+  app.post("/api/issues", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    
+    try {
+      const userId = req.user.id;
+      const validatedData = insertIssueSchema.parse(req.body);
+      
+      const issue = await storage.createIssue({
+        ...validatedData,
+        userId
+      });
+      
+      res.status(201).json(issue);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid issue data", error });
+    }
+  });
+  
+  app.put("/api/issues/:id", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      const issue = await storage.getIssue(id);
+      
+      if (!issue) {
+        return res.status(404).json({ message: "Issue not found" });
+      }
+      
+      // Check permissions based on role
+      const userId = req.user.id;
+      const userRole = req.user.role;
+      
+      if (userRole !== 'admin' && userRole !== 'organization' && issue.userId !== userId) {
+        return res.status(403).json({ message: "Not authorized to update this issue" });
+      }
+      
+      const updatedIssue = await storage.updateIssue(id, req.body);
+      res.json(updatedIssue);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update issue", error });
+    }
+  });
+  
+  app.post("/api/issues/:id/assign", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    
+    try {
+      const issueId = parseInt(req.params.id);
+      const { organizationId } = req.body;
+      
+      if (!organizationId) {
+        return res.status(400).json({ message: "Organization ID is required" });
+      }
+      
+      // Only admins can assign issues to organizations
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Only admins can assign issues" });
+      }
+      
+      const updatedIssue = await storage.assignIssueToOrganization(issueId, organizationId);
+      
+      if (!updatedIssue) {
+        return res.status(404).json({ message: "Issue not found" });
+      }
+      
+      res.json(updatedIssue);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to assign issue", error });
+    }
+  });
+  
+  // Feedback routes
+  app.get("/api/feedback", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || !req.user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const userRole = req.user.role;
+      const userId = req.user.id;
+      let feedbackList;
+      
+      if (userRole === 'admin') {
+        // Admins see all feedback
+        feedbackList = await storage.getAllFeedback();
+      } else if (userRole === 'dealer') {
+        // Dealers see feedback assigned to them
+        feedbackList = await storage.getAllFeedback();
+        feedbackList = feedbackList.filter(f => f.assignedToId === userId);
+      } else {
+        // Customers see their own feedback
+        feedbackList = await storage.getFeedbackByUserId(userId);
+      }
+      
+      res.json(feedbackList);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch feedback" });
+    }
+  });
+  
+  app.post("/api/feedback", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    
+    try {
+      const userId = req.user.id;
+      const validatedData = insertFeedbackSchema.parse(req.body);
+      
+      const feedback = await storage.createFeedback({
+        ...validatedData,
+        userId
+      });
+      
+      res.status(201).json(feedback);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid feedback data", error });
+    }
+  });
+  
+  app.put("/api/feedback/:id", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      const feedback = await storage.getFeedback(id);
+      
+      if (!feedback) {
+        return res.status(404).json({ message: "Feedback not found" });
+      }
+      
+      // Only admins or the assigned dealer can update feedback status
+      const userRole = req.user.role;
+      const userId = req.user.id;
+      
+      if (userRole !== 'admin' && feedback.assignedToId !== userId) {
+        return res.status(403).json({ message: "Not authorized to update this feedback" });
+      }
+      
+      const updatedFeedback = await storage.updateFeedback(id, req.body);
+      res.json(updatedFeedback);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update feedback", error });
+    }
+  });
+  
+  app.post("/api/feedback/:id/assign", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    
+    try {
+      const feedbackId = parseInt(req.params.id);
+      const { userId } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // Only admins can assign feedback
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Only admins can assign feedback" });
+      }
+      
+      const updatedFeedback = await storage.assignFeedbackToUser(feedbackId, userId);
+      
+      if (!updatedFeedback) {
+        return res.status(404).json({ message: "Feedback not found" });
+      }
+      
+      res.json(updatedFeedback);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to assign feedback", error });
+    }
+  });
+  
+  // Help Request routes
+  app.get("/api/help-requests", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || !req.user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const userRole = req.user.role;
+      const userId = req.user.id;
+      let helpRequests;
+      
+      if (userRole === 'admin' || userRole === 'organization') {
+        // Admins and organizations see all help requests
+        helpRequests = await storage.getAllHelpRequests();
+      } else {
+        // Customers see their own help requests
+        helpRequests = await storage.getHelpRequestsByUserId(userId);
+      }
+      
+      res.json(helpRequests);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch help requests" });
+    }
+  });
+  
+  app.post("/api/help-requests", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    
+    try {
+      const userId = req.user.id;
+      const validatedData = insertHelpRequestSchema.parse(req.body);
+      
+      const helpRequest = await storage.createHelpRequest({
+        ...validatedData,
+        userId
+      });
+      
+      res.status(201).json(helpRequest);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid help request data", error });
+    }
+  });
+  
+  app.put("/api/help-requests/:id", async (req, res) => {
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      const helpRequest = await storage.getHelpRequest(id);
+      
+      if (!helpRequest) {
+        return res.status(404).json({ message: "Help request not found" });
+      }
+      
+      // Check permissions based on role
+      const userRole = req.user.role;
+      const userId = req.user.id;
+      
+      if (userRole !== 'admin' && userRole !== 'organization' && helpRequest.userId !== userId) {
+        return res.status(403).json({ message: "Not authorized to update this help request" });
+      }
+      
+      const updatedHelpRequest = await storage.updateHelpRequest(id, req.body);
+      res.json(updatedHelpRequest);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update help request", error });
     }
   });
 
