@@ -115,6 +115,15 @@ export class MemStorage implements IStorage {
       checkPeriod: 86400000 // Clear expired sessions every 24h
     });
     
+    // Create admin user
+    this.createUser({
+      username: "admin",
+      password: "Admin0931@",
+      fullName: "System Administrator",
+      email: "admin@greenpath.com",
+      role: "admin"
+    });
+    
     // Initialize sample media content
     this.seedMediaContent();
   }
