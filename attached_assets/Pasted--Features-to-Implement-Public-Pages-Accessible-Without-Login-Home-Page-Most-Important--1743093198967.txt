@@ -1,0 +1,129 @@
+🔹 Features to Implement
+
+🔓 Public Pages (Accessible Without Login)
+🟢 Home Page (Most Important - Must Be Highly Informative & Engaging)
+
+The home page should be visually appealing, interactive, and informative while maintaining a clean, structured layout.
+
+Step-by-Step Guide with Icons & Animations:
+A clear flowchart or steps (with small, smooth animations) to show how users can:
+🚮 Report Waste
+📦 Schedule Pickups
+💰 Donate Items
+🌍 Join Cleanup Events
+🎖️ Earn Social Points
+Icons should be well-designed, intuitive, and visually distinct.
+Good Color Grading:
+Use green shades to highlight the eco-friendly theme.
+Accent colors (white, soft blues) for contrast and readability.
+Darker tones for text to ensure high visibility.
+Small, Subtle Animations for Engagement:
+Interactive Hover Effects (e.g., icons enlarge slightly when hovered).
+Smooth transitions (e.g., when scrolling, elements appear dynamically).
+Illustrations instead of static images where possible.
+Sections Clearly Highlighting Each User Group:
+Customers: How to report waste, track pickups, and earn points.
+Dealers: Accept waste requests, segregate, assist customers.
+Organizations: Organize events, request volunteers & donations.
+Real-Time Stats & Achievements Display:
+Number of pickups completed
+Total items donated
+Ongoing community events
+Top contributors (leaderboard)
+🚀 Donation Section on All Pages (Encouraging Quotes & Impact Stories)
+Quote: "Your waste can be someone’s treasure. Donate today and make a difference!"
+Show images of successful donations helping orphanages, old-age homes, and shelters.
+The home page should be designed to immediately grab attention, engage users, and clearly explain all functionalities in an interactive, step-by-step manner.
+
+📺 Media Page (Videos, Articles, Blogs, and Image Posts)
+
+Educational Videos: Composting, waste management, segregation, recycling.
+User & Expert Posts: Articles, blogs, and images from customers and experts.
+Latest News & Trends: Environmental updates and sustainable living tips.
+Nearby Events & Issues:
+Users can join cleanup drives, awareness campaigns, and workshops.
+If a waste issue exists nearby, users can collaborate to solve it.
+Redirection for Waste Segregation:
+While submitting a pickup request, users will answer:
+Is the waste segregated?
+If no, they will be redirected to the Media Page with a guide on how to do it.
+
+📖 About Us Page
+
+Green Path's story and impact.
+Team members and their roles.
+Ways to contribute: Volunteering, donating, raising awareness.
+📞 Contact Us Page
+Simple, functional form with name, email, phone, and message.
+Clickable phone number & email for direct contact.
+Embedded Google Map for location.
+FAQ section for common queries.
+🔐 Authentication System (Login/Register Page)
+Real Email Validation (No OTP verification).
+Strong Password Rules:
+At least 8 characters, 1 uppercase letter, 1 number, and 1 special character.
+Mandatory Fields for Registration:
+Full Name
+Email
+Phone Number (formatted validation)
+Address (Structured Sections):
+Basic Address: House number, street name.
+City & PIN Code.
+Village/Rural Area (if applicable).
+Role Selection (Admin Role NOT Available at Registration):
+Customer
+Dealer
+Organization
+"Forgot Password" Feature with email-based reset.
+🔒 User Dashboards (After Login - Role-Based Access Control)
+
+1. 🌱 Customer Dashboard
+Report Waste: Upload images, location tagging (Google Maps API).
+Track Report Status: View updates and progress.
+Earn & Redeem Social Points for contributions.
+Join Cleanup Events: RSVP, get event details, add to calendar.
+🚀 Manage Donations:
+List unused items (clothes, furniture, electronics, etc.).
+View requests from old age homes, orphanages, shelters.
+Choose whom to donate to or let the system auto-match.
+Post in Media Section: Share experiences, images, or articles.
+Pickup Request Tracking:
+Customers can track the status of their waste pickup requests.
+Before finalizing, they must confirm: “Is the waste segregated?”
+If no, they will be redirected to the Media Page with an educational video.
+2. 🏢 Organization Dashboard
+Manage Waste Reports: Kanban board-style interface.
+Create & Manage Cleanup Events: Set date, location, participant list.
+Assign Tasks to Volunteers and track progress.
+View Impact Analytics (charts & reports).
+Request Donations:
+Specify needed items (clothes, food, electronics, furniture).
+Users can browse and donate.
+3. 📦 Dealer Dashboard
+Accept/Reject Pickup Requests.
+Track Completed Pickups.
+Help in Waste Segregation:
+Guide customers to separate wet and dry waste.
+Redirect users to the Media Page if they need guidance.
+Join Local Events: Dealers can collaborate with organizations & customers to solve waste issues.
+4. 🛠️ Admin Dashboard (Only Existing Admins Can Add New Admins)
+Admin Role is NOT Available at Registration.
+Only an existing admin can add a new admin.
+Admins can:
+Manage All Users: Customers, Dealers, Organizations.
+Approve/Reject Waste Reports & Events.
+Manage Donations & Item Requests.
+Track Pickup Requests & System Analytics.
+View Logs & Security Settings.
+📍 Community-Driven Collaboration Features
+
+Users (Customers, Dealers, Organizations) can:
+Join Events based on their address (city, village, pin code).
+Work Together to clean up local issues nearby.
+Create Waste Management Campaigns for their area.
+Events & Issues Nearby Section:
+Users can find and join local events that match their location.
+Dealers can collaborate with organizations & customers to solve waste issues.
+🛢️ Database
+
+Use PostgreSQL for structured and scalable data storage.
