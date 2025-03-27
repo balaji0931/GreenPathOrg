@@ -81,13 +81,19 @@ export function SeekHelpForm() {
   const createHelpRequestMutation = useMutation({
     mutationFn: async (data: HelpRequestValues) => {
       const requestData = {
-        ...data,
+        userId: user?.id,
         title: data.title,
         description: data.description,
         helpType: data.helpType,
-        location: { basicAddress: data.location, city: "City", pinCode: "000000" },
-        scheduledDate: data.date,
-        maxParticipants: parseInt(data.maxParticipants) || 5,
+        location: { 
+          basicAddress: data.location, 
+          city: "City", 
+          pinCode: "123456" 
+        },
+        scheduledDate: data.date.toISOString(),
+        maxParticipants: parseInt(data.maxParticipants),
+        skills: data.skills || [],
+        isUrgent: data.isUrgent,
         status: "pending",
       };
       

@@ -62,12 +62,17 @@ export function RaiseIssueForm() {
   const createIssueMutation = useMutation({
     mutationFn: async (data: IssueFormValues) => {
       const formData = {
-        ...data,
+        userId: user?.id,
         title: data.title,
         description: data.description,
         issueType: data.issueType,
-        location: { basicAddress: data.location, city: "City", pinCode: "000000" },
+        location: { 
+          basicAddress: data.location, 
+          city: "City", 
+          pinCode: "123456" 
+        },
         requestCommunityHelp: data.needHelp,
+        isUrgent: data.isUrgent,
         images: [], // Empty array since we're not implementing image upload fully yet
         status: "pending",
       };

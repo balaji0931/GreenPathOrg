@@ -47,11 +47,20 @@ export function EventForm() {
 
   const createEventMutation = useMutation({
     mutationFn: async (data: EventFormValues) => {
-      // Make sure to include the organizerId in the event
+      // Format the date properly and include organizerId
       const formData = {
-        ...data,
+        title: data.title,
+        description: data.description,
+        location: {
+          address: data.location.address,
+          city: data.location.city,
+          pinCode: data.location.pinCode || "123456"
+        },
+        date: new Date(data.date).toISOString(),
+        maxParticipants: data.maxParticipants || 0,
+        image: data.image || "",
         organizerId: user?.id,
-        // Status defaults to 'upcoming' on the server side
+        status: "upcoming"
       };
       const response = await apiRequest("POST", "/api/events", formData);
       return response.json();
