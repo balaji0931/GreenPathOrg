@@ -11,7 +11,14 @@ import {
   ClipboardList,
   Building,
   Store,
-  Heart
+  Heart,
+  AlertTriangle,
+  Trophy,
+  Clock,
+  Users,
+  HelpCircle,
+  Newspaper,
+  MessageSquare
 } from "lucide-react";
 
 interface DashboardNavProps {
@@ -30,7 +37,13 @@ export function DashboardNav({ role, activeItem, setActiveItem }: DashboardNavPr
           { id: "dashboard", label: "Dashboard", icon: <BarChart3 className="h-5 w-5" /> },
           { id: "waste-reports", label: "Waste Reports", icon: <Trash2 className="h-5 w-5" /> },
           { id: "donations", label: "Donations", icon: <Gift className="h-5 w-5" /> },
+          { id: "raise-issue", label: "Raise Issue", icon: <AlertTriangle className="h-5 w-5" /> },
+          { id: "seek-help", label: "Seek Help", icon: <HelpCircle className="h-5 w-5" /> },
+          { id: "help-others", label: "Help Others", icon: <Users className="h-5 w-5" /> },
           { id: "events", label: "Events", icon: <Calendar className="h-5 w-5" /> },
+          { id: "pickup-history", label: "Pickup History", icon: <Clock className="h-5 w-5" /> },
+          { id: "leaderboard", label: "Leaderboard", icon: <Trophy className="h-5 w-5" /> },
+          { id: "give-feedback", label: "Give Feedback", icon: <MessageSquare className="h-5 w-5" /> },
         ];
       case "dealer":
         return [
@@ -38,7 +51,10 @@ export function DashboardNav({ role, activeItem, setActiveItem }: DashboardNavPr
           { id: "pending-pickups", label: "Pending Pickups", icon: <ClipboardList className="h-5 w-5" /> },
           { id: "accepted-pickups", label: "Accepted Pickups", icon: <Package className="h-5 w-5" /> },
           { id: "completed-pickups", label: "Completed Pickups", icon: <BarChart3 className="h-5 w-5" /> },
+          { id: "schedule", label: "Schedule", icon: <Calendar className="h-5 w-5" /> },
           { id: "events", label: "Community Events", icon: <Calendar className="h-5 w-5" /> },
+          { id: "issues", label: "Issues", icon: <AlertTriangle className="h-5 w-5" /> },
+          { id: "feedback", label: "Feedback", icon: <MessageSquare className="h-5 w-5" /> },
         ];
       case "organization":
         return [
@@ -46,6 +62,10 @@ export function DashboardNav({ role, activeItem, setActiveItem }: DashboardNavPr
           { id: "events", label: "Events", icon: <Calendar className="h-5 w-5" /> },
           { id: "waste-reports", label: "Waste Reports", icon: <Trash2 className="h-5 w-5" /> },
           { id: "donations", label: "Donations", icon: <Gift className="h-5 w-5" /> },
+          { id: "volunteers", label: "Volunteers", icon: <Users className="h-5 w-5" /> },
+          { id: "awareness", label: "Awareness", icon: <Newspaper className="h-5 w-5" /> },
+          { id: "campaigns", label: "Campaigns", icon: <Building className="h-5 w-5" /> },
+          { id: "feedback", label: "Feedback", icon: <MessageSquare className="h-5 w-5" /> },
         ];
       default:
         return [];
