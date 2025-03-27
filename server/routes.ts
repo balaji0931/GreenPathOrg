@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
-import { setupWebSocketServer } from "./websocket";
+import { setupWebSocketServer, broadcastMessage } from "./websocket";
 import { z } from "zod";
 import {
   insertWasteReportSchema,
@@ -176,6 +176,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         authorId: req.user.id
       });
       
+      // Broadcast the new media content to all connected clients
+      broadcastMessage('media_created', {
+        content: media,
+        creator: {
+          id: req.user.id,
+          username: req.user.username,
+          role: req.user.role
+        }
+      });
+      
+      // Add social points for creating content (only for organizations)
+      if (req.user.role === 'organization') {
+        const updatedUser = await storage.updateUser(req.user.id, {
+          socialPoints: (req.user.socialPoints || 0) + 10
+        });
+        
+        // If points updated, broadcast leaderboard update
+        if (updatedUser) {
+          broadcastMessage('leaderboard_updated', { userId: req.user.id });
+        }
+      }
+      
       res.status(201).json(media);
     } catch (error) {
       res.status(400).json({ message: "Invalid media content data", error });
@@ -244,6 +266,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         userId
       });
+      
+      // Broadcast waste report created
+      broadcastMessage('waste_report_created', {
+        report,
+        creator: {
+          id: req.user.id,
+          username: req.user.username,
+          role: req.user.role
+        }
+      });
+      
+      // Add social points for reporting waste
+      const updatedUser = await storage.updateUser(req.user.id, {
+        socialPoints: (req.user.socialPoints || 0) + 2
+      });
+      
+      // If points updated, broadcast leaderboard update
+      if (updatedUser) {
+        broadcastMessage('leaderboard_updated', { userId: req.user.id });
+      }
       
       res.status(201).json(report);
     } catch (error) {
@@ -332,6 +374,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId
       });
       
+      // Broadcast new donation to all connected clients
+      broadcastMessage('donation_created', {
+        donation,
+        creator: {
+          id: req.user.id,
+          username: req.user.username,
+          role: req.user.role
+        }
+      });
+      
+      // Add social points for donating
+      const updatedUser = await storage.updateUser(req.user.id, {
+        socialPoints: (req.user.socialPoints || 0) + 5
+      });
+      
+      // If points updated, broadcast leaderboard update
+      if (updatedUser) {
+        broadcastMessage('leaderboard_updated', { userId: req.user.id });
+      }
+      
       res.status(201).json(donation);
     } catch (error) {
       res.status(400).json({ message: "Invalid donation data", error });
@@ -397,6 +459,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         organizerId
       });
       
+      // Broadcast new event to all connected clients
+      broadcastMessage('event_created', {
+        event,
+        creator: {
+          id: req.user.id,
+          username: req.user.username,
+          role: req.user.role
+        }
+      });
+      
+      // Add social points for creating events
+      const updatedUser = await storage.updateUser(req.user.id, {
+        socialPoints: (req.user.socialPoints || 0) + 15
+      });
+      
+      // If points updated, broadcast leaderboard update
+      if (updatedUser) {
+        broadcastMessage('leaderboard_updated', { userId: req.user.id });
+      }
+      
       res.status(201).json(event);
     } catch (error) {
       res.status(400).json({ message: "Invalid event data", error });
@@ -461,6 +543,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         eventId,
         userId
       });
+      
+      // Broadcast participant joined event
+      broadcastMessage('event_participant_joined', {
+        eventId,
+        participant: {
+          id: req.user.id,
+          username: req.user.username,
+          fullName: req.user.fullName,
+        }
+      });
+      
+      // Add social points for joining an event
+      const updatedUser = await storage.updateUser(req.user.id, {
+        socialPoints: (req.user.socialPoints || 0) + 5
+      });
+      
+      // If points updated, broadcast leaderboard update
+      if (updatedUser) {
+        broadcastMessage('leaderboard_updated', { userId: req.user.id });
+      }
       
       res.status(201).json(participant);
     } catch (error) {
@@ -564,6 +666,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const issue = await storage.createIssue({
         ...validatedData,
         userId
+      });
+      
+      // Broadcast issue created
+      broadcastMessage('issue_created', {
+        issue,
+        creator: {
+          id: req.user.id,
+          username: req.user.username,
+          role: req.user.role
+        }
       });
       
       res.status(201).json(issue);
@@ -673,6 +785,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId
       });
       
+      // Broadcast feedback created
+      broadcastMessage('feedback_created', {
+        feedback,
+        creator: {
+          id: req.user.id,
+          username: req.user.username,
+          role: req.user.role
+        }
+      });
+      
+      // Add social points for providing feedback
+      const updatedUser = await storage.updateUser(req.user.id, {
+        socialPoints: (req.user.socialPoints || 0) + 1
+      });
+      
+      // If points updated, broadcast leaderboard update
+      if (updatedUser) {
+        broadcastMessage('leaderboard_updated', { userId: req.user.id });
+      }
+      
       res.status(201).json(feedback);
     } catch (error) {
       res.status(400).json({ message: "Invalid feedback data", error });
@@ -774,6 +906,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const helpRequest = await storage.createHelpRequest({
         ...validatedData,
         userId
+      });
+      
+      // Broadcast help request created
+      broadcastMessage('help_request_created', {
+        helpRequest,
+        creator: {
+          id: req.user.id,
+          username: req.user.username,
+          role: req.user.role
+        }
       });
       
       res.status(201).json(helpRequest);

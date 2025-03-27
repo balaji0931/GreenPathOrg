@@ -12,6 +12,7 @@ import { SocialPointsCard } from "@/components/dashboard/social-points-card";
 import { Button } from "@/components/ui/button";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { MediaContentForm } from "@/components/dashboard/media-content-form";
 import { 
   Loader2, 
   Calendar, 
@@ -119,6 +120,16 @@ export default function OrganizationDashboard() {
   const availableDonations = donations?.filter((donation: Donation) => 
     donation.status === "available"
   ) || [];
+
+  // Get media content
+  const { data: mediaContent, isLoading: isLoadingMedia } = useQuery({
+    queryKey: ["/api/media"],
+    queryFn: async ({ queryKey }) => {
+      const res = await fetch(queryKey[0] as string);
+      if (!res.ok) throw new Error("Failed to fetch media content");
+      return await res.json();
+    },
+  });
 
   // Filter organization's events
   const organizationEvents = events?.filter((event: Event) => 
@@ -421,46 +432,91 @@ export default function OrganizationDashboard() {
                 </TabsContent>
                 
                 <TabsContent value="awareness">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Awareness Programs</CardTitle>
-                      <CardDescription>
-                        Create and manage educational content and awareness programs.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid gap-6">
-                        <div className="p-4 bg-neutral-50 rounded-lg">
-                          <h3 className="font-medium mb-4">Create Awareness Content</h3>
-                          <div className="flex gap-4 flex-wrap">
-                            <Button variant="outline" className="flex items-center gap-2">
-                              <Loader2 className="h-4 w-4" />
-                              New Article
-                            </Button>
-                            <Button variant="outline" className="flex items-center gap-2">
-                              <Loader2 className="h-4 w-4" />
-                              New Video
-                            </Button>
-                            <Button variant="outline" className="flex items-center gap-2">
-                              <Loader2 className="h-4 w-4" />
-                              New Campaign
-                            </Button>
+                  <div className="grid gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Create Awareness Content</CardTitle>
+                        <CardDescription>
+                          Create educational content to spread awareness about waste management and sustainability.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <MediaContentForm />
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Your Content</CardTitle>
+                        <CardDescription>
+                          Manage content created by your organization.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {isLoadingMedia ? (
+                          <div className="flex justify-center py-8">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
                           </div>
-                        </div>
-                        
-                        <div className="text-center py-8">
-                          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                            <Newspaper className="h-8 w-8 text-gray-400" />
+                        ) : (
+                          <div className="space-y-6">
+                            {mediaContent && mediaContent.length > 0 ? (
+                              mediaContent.filter((content: any) => content.authorId === user?.id).map((content: any) => (
+                                <div key={content.id} className="border rounded-lg p-4">
+                                  <div className="flex justify-between items-start">
+                                    <div className="flex gap-4">
+                                      <div className="bg-primary/10 rounded-lg p-3 h-fit">
+                                        <Newspaper className="h-6 w-6 text-primary" />
+                                      </div>
+                                      <div>
+                                        <h3 className="font-semibold">{content.title}</h3>
+                                        <p className="text-sm text-neutral-dark mt-1">{content.description}</p>
+                                        <div className="grid grid-cols-2 gap-4 mt-2">
+                                          <div className="text-sm">
+                                            <span className="font-medium">Type:</span> {content.contentType.charAt(0).toUpperCase() + content.contentType.slice(1)}
+                                          </div>
+                                          <div className="text-sm">
+                                            <span className="font-medium">Published:</span> {new Date(content.createdAt).toLocaleDateString()}
+                                          </div>
+                                          {content.tags && (
+                                            <div className="text-sm col-span-2">
+                                              <span className="font-medium">Tags:</span>{" "}
+                                              {content.tags.map((tag: string, index: number) => (
+                                                <span key={index} className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded mr-1 mb-1">
+                                                  {tag}
+                                                </span>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                      <Badge variant={content.published ? "default" : "outline"}>
+                                        {content.published ? "Published" : "Draft"}
+                                      </Badge>
+                                      <Button size="sm" variant="outline">
+                                        Edit
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-center py-8">
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                                  <Newspaper className="h-8 w-8 text-gray-400" />
+                                </div>
+                                <h3 className="text-lg font-medium mb-1">No content yet</h3>
+                                <p className="text-sm text-gray-500 max-w-sm mx-auto mb-6">
+                                  Start creating awareness content to educate the community about waste management.
+                                </p>
+                              </div>
+                            )}
                           </div>
-                          <h3 className="text-lg font-medium mb-1">No awareness content yet</h3>
-                          <p className="text-sm text-gray-500 max-w-sm mx-auto mb-6">
-                            Start creating awareness content to educate the community about waste management.
-                          </p>
-                          <Button>Create Content</Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
                 </TabsContent>
               </Tabs>
             </div>

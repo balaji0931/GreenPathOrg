@@ -101,7 +101,39 @@ function handleMessage(client: WebSocket, message: WebSocketMessage) {
       }
       break;
       
-    // Add more message type handlers as needed
+    case 'request_update':
+      // Client requests the latest data for a specific resource
+      if (data && data.resource) {
+        log(`Client requested update for: ${data.resource}`, 'websocket');
+        // The server would fetch the latest data and send it back
+        sendToClient(client, 'resource_update', { 
+          resource: data.resource,
+          message: `Update request for ${data.resource} received`
+        });
+      }
+      break;
+      
+    case 'join_event_room':
+      // Client wants to join a specific event's virtual room
+      if (data && data.eventId) {
+        log(`Client joined event room: ${data.eventId}`, 'websocket');
+        sendToClient(client, 'joined_event_room', { 
+          eventId: data.eventId,
+          message: `Joined event room ${data.eventId}`
+        });
+      }
+      break;
+      
+    case 'user_activity':
+      // Track user activity for points/badges
+      if (data && data.userId && data.activity) {
+        log(`User activity recorded: ${data.activity} by ${data.userId}`, 'websocket');
+        sendToClient(client, 'activity_recorded', { 
+          success: true,
+          message: `Activity '${data.activity}' recorded`
+        });
+      }
+      break;
       
     default:
       log(`Unhandled message type: ${type}`, 'websocket');
