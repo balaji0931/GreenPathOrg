@@ -784,9 +784,9 @@ export class MemStorage implements IStorage {
         address: { street: "123 Admin Street", city: "Green City", zipCode: "12345" },
         role: "admin" as const
       };
-      await this.createUser(adminUser);
+      const admin = await this.createUser(adminUser);
       
-      // Additional sample users for testing
+      // Base test accounts
       const customerUser: InsertUser = {
         username: "customer",
         password: await hashPassword("Customer123@"),
@@ -817,10 +817,586 @@ export class MemStorage implements IStorage {
         role: "organization" as const
       };
       
-      // Create sample users
-      await this.createUser(customerUser);
-      await this.createUser(dealerUser);
-      await this.createUser(orgUser);
+      // Additional test accounts - 3 more of each type
+      const customer2: InsertUser = {
+        username: "customer2",
+        password: await hashPassword("Customer123@"),
+        fullName: "John Doe",
+        email: "john.doe@example.com",
+        phone: "+1987654320",
+        address: { street: "42 Green Street", city: "Eco Town", zipCode: "54322" },
+        role: "customer" as const
+      };
+      
+      const customer3: InsertUser = {
+        username: "customer3",
+        password: await hashPassword("Customer123@"),
+        fullName: "Jane Smith",
+        email: "jane.smith@example.com",
+        phone: "+1598765432",
+        address: { street: "25 Earth Avenue", city: "Sustainable City", zipCode: "54323" },
+        role: "customer" as const
+      };
+      
+      const customer4: InsertUser = {
+        username: "customer4",
+        password: await hashPassword("Customer123@"),
+        fullName: "Sarah Johnson",
+        email: "sarah@example.com",
+        phone: "+1234567899",
+        address: { street: "333 Green Lane", city: "Eco Village", zipCode: "54324" },
+        role: "customer" as const
+      };
+      
+      const dealer2: InsertUser = {
+        username: "dealer2",
+        password: await hashPassword("Dealer123@"),
+        fullName: "Recycling Pro",
+        email: "recycler@example.com",
+        phone: "+1567891234",
+        address: { street: "55 Recycle Road", city: "Waste City", zipCode: "67891" },
+        role: "dealer" as const
+      };
+      
+      const dealer3: InsertUser = {
+        username: "dealer3",
+        password: await hashPassword("Dealer123@"),
+        fullName: "Green Collector",
+        email: "collector@example.com",
+        phone: "+1678912345",
+        address: { street: "77 Pickup Street", city: "Collection Town", zipCode: "67892" },
+        role: "dealer" as const
+      };
+      
+      const dealer4: InsertUser = {
+        username: "dealer4",
+        password: await hashPassword("Dealer123@"),
+        fullName: "Eco Transporter",
+        email: "transporter@example.com",
+        phone: "+1789123456",
+        address: { street: "99 Transport Lane", city: "Disposal Town", zipCode: "67893" },
+        role: "dealer" as const
+      };
+      
+      const org2: InsertUser = {
+        username: "org2",
+        password: await hashPassword("Organization123@"),
+        fullName: "EcoHelpers Foundation",
+        email: "ecohelpers@example.com",
+        phone: "+1789123456",
+        address: { street: "88 Charity Lane", city: "Giving City", zipCode: "10102" },
+        role: "organization" as const
+      };
+      
+      const org3: InsertUser = {
+        username: "org3",
+        password: await hashPassword("Organization123@"),
+        fullName: "Green Planet NGO",
+        email: "greenplanet@example.com",
+        phone: "+1891234567",
+        address: { street: "99 Earth Street", city: "World City", zipCode: "10103" },
+        role: "organization" as const
+      };
+      
+      const org4: InsertUser = {
+        username: "org4",
+        password: await hashPassword("Organization123@"),
+        fullName: "Sustainable Future",
+        email: "sustainable@example.com",
+        phone: "+1912345678",
+        address: { street: "111 Future Ave", city: "Tomorrow Town", zipCode: "10104" },
+        role: "organization" as const
+      };
+      
+      // Create all users
+      const user1 = await this.createUser(customerUser);
+      const user2 = await this.createUser(dealerUser);
+      const user3 = await this.createUser(orgUser);
+      const user4 = await this.createUser(customer2);
+      const user5 = await this.createUser(customer3);
+      const user6 = await this.createUser(customer4);
+      const user7 = await this.createUser(dealer2);
+      const user8 = await this.createUser(dealer3);
+      const user9 = await this.createUser(dealer4);
+      const user10 = await this.createUser(org2);
+      const user11 = await this.createUser(org3);
+      const user12 = await this.createUser(org4);
+      
+      // Seed waste reports with different statuses
+      const wasteReports = [
+        {
+          userId: user1.id,
+          title: "Household waste pickup",
+          description: "Weekly segregated waste ready for collection",
+          location: {
+            address: "456 User Lane",
+            city: "Eco City",
+            pinCode: "54321"
+          },
+          isSegregated: true,
+          status: "pending" as const,
+          images: []
+        },
+        {
+          userId: user1.id,
+          title: "Garden waste collection",
+          description: "Lawn cuttings and plant trimmings",
+          location: {
+            address: "456 User Lane", 
+            city: "Eco City",
+            pinCode: "54321"
+          },
+          isSegregated: true,
+          status: "scheduled" as const,
+          images: []
+        },
+        {
+          userId: user4.id,
+          title: "E-waste disposal",
+          description: "Old electronics and batteries",
+          location: {
+            address: "42 Green Street",
+            city: "Eco Town",
+            pinCode: "54322"
+          },
+          isSegregated: true,
+          status: "in_progress" as const,
+          images: []
+        },
+        {
+          userId: user5.id,
+          title: "Monthly recyclables",
+          description: "Paper, plastic, and glass items",
+          location: {
+            address: "25 Earth Avenue",
+            city: "Sustainable City",
+            pinCode: "54323"
+          },
+          isSegregated: true,
+          status: "completed" as const,
+          images: []
+        },
+        {
+          userId: user6.id,
+          title: "Construction waste disposal",
+          description: "Leftover materials from home renovation",
+          location: {
+            address: "333 Green Lane",
+            city: "Eco Village",
+            pinCode: "54324"
+          },
+          isSegregated: true,
+          status: "rejected" as const,
+          images: []
+        }
+      ];
+      
+      // Create waste reports
+      for (const report of wasteReports) {
+        await this.createWasteReport(report);
+      }
+      
+      // Seed donation items
+      const donations = [
+        {
+          userId: user1.id,
+          itemName: "Study Table",
+          description: "Wooden study table in good condition",
+          category: "Furniture",
+          condition: "Good",
+          quantity: 1,
+          location: {
+            address: "456 User Lane",
+            city: "Eco City",
+            pinCode: "54321"
+          },
+          images: [],
+          status: "available" as const
+        },
+        {
+          userId: user4.id,
+          itemName: "Winter Clothes Set",
+          description: "Set of winter clothes, barely used",
+          category: "Clothing",
+          condition: "Like New",
+          quantity: 5,
+          location: {
+            address: "42 Green Street",
+            city: "Eco Town",
+            pinCode: "54322"
+          },
+          images: [],
+          status: "requested" as const,
+          requestedByOrganizationId: user3.id
+        },
+        {
+          userId: user5.id,
+          itemName: "Used Laptop",
+          description: "Working laptop, 3 years old",
+          category: "Electronics",
+          condition: "Fair",
+          quantity: 1,
+          location: {
+            address: "25 Earth Avenue",
+            city: "Sustainable City",
+            pinCode: "54323"
+          },
+          images: [],
+          status: "matched" as const,
+          requestedByOrganizationId: user10.id
+        },
+        {
+          userId: user1.id,
+          itemName: "Children's Books",
+          description: "Collection of 20 children's books",
+          category: "Books",
+          condition: "Good",
+          quantity: 20,
+          location: {
+            address: "456 User Lane",
+            city: "Eco City",
+            pinCode: "54321"
+          },
+          images: [],
+          status: "completed" as const,
+          requestedByOrganizationId: user11.id
+        },
+        {
+          userId: user6.id,
+          itemName: "Kitchen Appliances",
+          description: "Various kitchen items in working condition",
+          category: "Kitchen Items",
+          condition: "Good",
+          quantity: 8,
+          location: {
+            address: "333 Green Lane",
+            city: "Eco Village",
+            pinCode: "54324"
+          },
+          images: [],
+          status: "available" as const
+        }
+      ];
+      
+      // Create donations
+      for (const donation of donations) {
+        await this.createDonation(donation);
+      }
+      
+      // Seed community events
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      const nextWeek = new Date(now);
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      
+      const lastWeek = new Date(now);
+      lastWeek.setDate(lastWeek.getDate() - 7);
+      
+      const events = [
+        {
+          organizerId: user3.id,
+          title: "Community Cleanup Drive",
+          description: "Join us for a cleanup of our local park and riverside",
+          location: {
+            address: "Central Park",
+            city: "Community City",
+            pinCode: "10101"
+          },
+          date: tomorrow.toISOString(),
+          maxParticipants: 20,
+          currentParticipants: 5,
+          status: "upcoming" as const,
+          image: null,
+        },
+        {
+          organizerId: user10.id,
+          title: "Waste Segregation Workshop",
+          description: "Learn how to properly sort your household waste",
+          location: {
+            address: "Community Center",
+            city: "Giving City",
+            pinCode: "10102"
+          },
+          date: nextWeek.toISOString(),
+          maxParticipants: 30,
+          currentParticipants: 15,
+          status: "upcoming" as const,
+          image: null,
+        },
+        {
+          organizerId: user11.id,
+          title: "Recycling Awareness Drive",
+          description: "Educational campaign about the importance of recycling",
+          location: {
+            address: "Town Hall",
+            city: "World City",
+            pinCode: "10103"
+          },
+          date: lastWeek.toISOString(),
+          maxParticipants: 40,
+          currentParticipants: 38,
+          status: "completed" as const,
+          image: null,
+        },
+        {
+          organizerId: user12.id,
+          title: "Zero Waste Living Workshop",
+          description: "Practical tips for reducing waste in daily life",
+          location: {
+            address: "Community Hall",
+            city: "Tomorrow Town",
+            pinCode: "10104"
+          },
+          date: now.toISOString(),
+          maxParticipants: 25,
+          currentParticipants: 20,
+          status: "ongoing" as const,
+          image: null,
+        }
+      ];
+      
+      // Create events
+      for (const event of events) {
+        await this.createEvent(event);
+      }
+      
+      // Seed event participants for the events
+      await this.addEventParticipant({
+        eventId: 1,
+        userId: user1.id
+      });
+      
+      await this.addEventParticipant({
+        eventId: 1,
+        userId: user4.id
+      });
+      
+      await this.addEventParticipant({
+        eventId: 1,
+        userId: user5.id
+      });
+      
+      await this.addEventParticipant({
+        eventId: 2,
+        userId: user1.id
+      });
+      
+      await this.addEventParticipant({
+        eventId: 3,
+        userId: user4.id
+      });
+      
+      await this.addEventParticipant({
+        eventId: 4,
+        userId: user6.id
+      });
+      
+      // Seed issues with different statuses
+      const issues = [
+        {
+          userId: user1.id,
+          title: "Irregular waste collection",
+          description: "Waste collection has been irregular in my area for the past month",
+          status: "pending" as const,
+          assignedOrganizationId: null,
+          location: {
+            address: "456 User Lane",
+            city: "Eco City",
+            pinCode: "54321"
+          }
+        },
+        {
+          userId: user4.id,
+          title: "Improper waste disposal by neighbor",
+          description: "My neighbor is not segregating waste properly and mixing hazardous materials",
+          status: "assigned" as const,
+          assignedOrganizationId: user3.id,
+          location: {
+            address: "42 Green Street",
+            city: "Eco Town",
+            pinCode: "54322"
+          }
+        },
+        {
+          userId: user5.id,
+          title: "Waste collection vehicle causing pollution",
+          description: "The waste collection vehicle emits a lot of smoke in our area",
+          status: "in_progress" as const,
+          assignedOrganizationId: user10.id,
+          location: {
+            address: "25 Earth Avenue",
+            city: "Sustainable City",
+            pinCode: "54323"
+          }
+        },
+        {
+          userId: user1.id,
+          title: "Need more recycling bins",
+          description: "Our community needs more recycling bins in public spaces",
+          status: "resolved" as const,
+          assignedOrganizationId: user11.id,
+          location: {
+            address: "456 User Lane",
+            city: "Eco City",
+            pinCode: "54321"
+          }
+        },
+        {
+          userId: user6.id,
+          title: "Trash being dumped in nearby lake",
+          description: "People are dumping garbage in our local lake, polluting the water",
+          status: "pending" as const,
+          assignedOrganizationId: null,
+          location: {
+            address: "333 Green Lane",
+            city: "Eco Village",
+            pinCode: "54324"
+          }
+        }
+      ];
+      
+      // Create issues
+      for (const issue of issues) {
+        await this.createIssue(issue);
+      }
+      
+      // Seed help requests
+      const helpRequests = [
+        {
+          userId: user3.id,
+          title: "Volunteers needed for awareness campaign",
+          description: "Looking for 10 volunteers to help with our waste segregation awareness campaign",
+          helpType: "awareness_campaign",
+          location: {
+            address: "101 Org Avenue",
+            city: "Community City",
+            pinCode: "10101"
+          },
+          scheduledDate: tomorrow.toISOString(),
+          maxParticipants: 10,
+          skills: ["Education", "Community Organizing", "Social Media"],
+          isUrgent: true,
+          status: "pending" as const
+        },
+        {
+          userId: user10.id,
+          title: "Help needed for cleanup drive",
+          description: "Need volunteers to help with our monthly cleanup drive at the beach",
+          helpType: "cleanup",
+          location: {
+            address: "88 Charity Lane",
+            city: "Giving City",
+            pinCode: "10102"
+          },
+          scheduledDate: nextWeek.toISOString(),
+          maxParticipants: 15,
+          skills: ["Clean-up Drive", "Heavy Lifting"],
+          isUrgent: false,
+          status: "approved" as const
+        },
+        {
+          userId: user11.id,
+          title: "Transportation support for recycling drive",
+          description: "Need transportation support to collect recyclables from different locations",
+          helpType: "transport",
+          location: {
+            address: "99 Earth Street",
+            city: "World City",
+            pinCode: "10103"
+          },
+          scheduledDate: nextWeek.toISOString(),
+          maxParticipants: 5,
+          skills: ["Transportation"],
+          isUrgent: true,
+          status: "in_progress" as const
+        },
+        {
+          userId: user12.id,
+          title: "Educational workshop facilitators needed",
+          description: "Looking for people to help facilitate educational workshops on waste management",
+          helpType: "education",
+          location: {
+            address: "111 Future Ave",
+            city: "Tomorrow Town",
+            pinCode: "10104"
+          },
+          scheduledDate: nextWeek.toISOString(),
+          maxParticipants: 8,
+          skills: ["Education", "Waste Segregation"],
+          isUrgent: false,
+          status: "completed" as const
+        }
+      ];
+      
+      // Create help requests
+      for (const request of helpRequests) {
+        await this.createHelpRequest(request);
+      }
+      
+      // Seed feedback
+      const feedback = [
+        {
+          userId: user1.id,
+          type: "pickup_service",
+          rating: 4,
+          comment: "Good service but could be more punctual",
+          assignedToUserId: user2.id,
+          status: "pending" as const
+        },
+        {
+          userId: user4.id,
+          type: "donation_process",
+          rating: 5,
+          comment: "Excellent donation process, very smooth",
+          assignedToUserId: user3.id,
+          status: "resolved" as const
+        },
+        {
+          userId: user5.id,
+          type: "app_experience",
+          rating: 3,
+          comment: "App is good but could use some improvements in the UI",
+          assignedToUserId: null,
+          status: "pending" as const
+        },
+        {
+          userId: user6.id,
+          type: "customer_service",
+          rating: 5,
+          comment: "Amazing customer service, very responsive and helpful",
+          assignedToUserId: user7.id,
+          status: "resolved" as const
+        },
+        {
+          userId: user1.id,
+          type: "general",
+          rating: 4,
+          comment: "Overall great platform. Keep up the good work!",
+          assignedToUserId: null,
+          status: "pending" as const
+        }
+      ];
+      
+      // Create feedback
+      for (const item of feedback) {
+        await this.createFeedback(item);
+      }
+      
+      // Add user points for leaderboard
+      await this.updateUser(user1.id, { points: 250 });
+      await this.updateUser(user4.id, { points: 180 });
+      await this.updateUser(user5.id, { points: 320 });
+      await this.updateUser(user6.id, { points: 150 });
+      await this.updateUser(user2.id, { points: 300 });
+      await this.updateUser(user7.id, { points: 280 });
+      await this.updateUser(user3.id, { points: 420 });
+      await this.updateUser(user10.id, { points: 380 });
+      await this.updateUser(user11.id, { points: 350 });
+      
+      console.log("Successfully seeded all test data!");
+      
     } catch (error) {
       console.error("Error seeding initial data:", error);
     }
