@@ -82,10 +82,10 @@ export function SeekHelpForm() {
     mutationFn: async (data: HelpRequestValues) => {
       const requestData = {
         ...data,
-        userId: user?.id,
-        status: "active",
-        currentParticipants: 0,
-        createdAt: new Date().toISOString(),
+        location: { basicAddress: data.location, city: "", pinCode: "" },
+        scheduledDate: data.date,
+        maxParticipants: parseInt(data.maxParticipants) || 5,
+        status: "pending",
       };
       
       const response = await apiRequest("POST", "/api/help-requests", requestData);
@@ -111,13 +111,18 @@ export function SeekHelpForm() {
 
   const handleSkillToggle = (skill: string) => {
     setSelectedSkills((prevSkills) => {
-      if (prevSkills.includes(skill)) {
-        form.setValue("skills", prevSkills.filter(s => s !== skill));
-        return prevSkills.filter(s => s !== skill);
-      } else {
-        form.setValue("skills", [...prevSkills, skill]);
-        return [...prevSkills, skill];
-      }
+      const newSkills = prevSkills.includes(skill)
+        ? prevSkills.filter(s => s !== skill)
+        : [...prevSkills, skill];
+      
+      // Update the form field value
+      form.setValue("skills", newSkills, { 
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true
+      });
+      
+      return newSkills;
     });
   };
 
@@ -298,9 +303,10 @@ export function SeekHelpForm() {
                         <div className="flex items-center space-x-2">
                           <Checkbox 
                             checked={selectedSkills.includes(skill)}
-                            onCheckedChange={() => {}}
+                            onCheckedChange={() => handleSkillToggle(skill)}
+                            id={`skill-${skill}`}
                           />
-                          <span className="text-sm">{skill}</span>
+                          <label htmlFor={`skill-${skill}`} className="text-sm cursor-pointer">{skill}</label>
                         </div>
                       </div>
                     ))}

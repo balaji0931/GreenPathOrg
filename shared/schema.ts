@@ -138,7 +138,7 @@ export const helpRequests = pgTable("help_requests", {
   location: json("location").notNull(),
   status: helpRequestStatusEnum("status").notNull().default('pending'),
   createdAt: timestamp("created_at").defaultNow(),
-  scheduledDate: timestamp("scheduled_date").notNull(),
+  scheduledDate: timestamp("scheduled_date"),
   maxParticipants: integer("max_participants"),
   skills: text("skills").array(),
   isUrgent: boolean("is_urgent").default(false),

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { insertEventSchema } from "@shared/schema";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
@@ -24,6 +25,7 @@ type EventFormValues = z.infer<typeof eventFormSchema>;
 
 export function EventForm() {
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -37,12 +39,19 @@ export function EventForm() {
       },
       maxParticipants: 0,
       image: "",
+      organizerId: user?.id,
     },
   });
 
   const createEventMutation = useMutation({
     mutationFn: async (data: EventFormValues) => {
-      const response = await apiRequest("POST", "/api/events", data);
+      // Make sure to include the organizerId in the event
+      const formData = {
+        ...data,
+        organizerId: user?.id,
+        // Status defaults to 'upcoming' on the server side
+      };
+      const response = await apiRequest("POST", "/api/events", formData);
       return response.json();
     },
     onSuccess: () => {

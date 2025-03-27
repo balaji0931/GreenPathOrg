@@ -63,9 +63,10 @@ export function RaiseIssueForm() {
     mutationFn: async (data: IssueFormValues) => {
       const formData = {
         ...data,
-        userId: user?.id,
+        location: { basicAddress: data.location, city: "", pinCode: "" },
+        requestCommunityHelp: data.needHelp,
+        images: [], // Empty array since we're not implementing image upload fully yet
         status: "pending",
-        createdAt: new Date().toISOString(),
       };
       
       const response = await apiRequest("POST", "/api/issues", formData);

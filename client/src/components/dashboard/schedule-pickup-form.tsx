@@ -76,11 +76,19 @@ export function SchedulePickupForm() {
 
   const schedulePickupMutation = useMutation({
     mutationFn: async (data: PickupFormValues) => {
+      // Convert form data to match the expected schema
       const formData = {
-        ...data,
-        userId: user?.id,
+        title: `Waste Pickup - ${data.wasteType}`,
+        description: data.description || `Pickup request for ${data.quantity}kg of ${data.wasteType} waste`,
+        location: { 
+          basicAddress: data.address, 
+          city: "",
+          pinCode: "" 
+        },
         status: "pending",
-        createdAt: new Date().toISOString(),
+        isSegregated: data.isSegregated === "yes",
+        scheduledDate: data.date,
+        images: []
       };
       
       const response = await apiRequest("POST", "/api/waste-reports", formData);

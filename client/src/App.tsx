@@ -8,6 +8,7 @@ import AuthPage from "@/pages/auth-page";
 import AboutPage from "@/pages/about-page";
 import ContactPage from "@/pages/contact-page";
 import MediaPage from "@/pages/media-page";
+import DonatePage from "@/pages/donate";
 import CustomerDashboard from "@/pages/customer-dashboard";
 import DealerDashboard from "@/pages/dealer-dashboard";
 import OrganizationDashboard from "@/pages/organization-dashboard";
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/about" component={AboutPage} />
       <Route path="/contact" component={ContactPage} />
       <Route path="/media" component={MediaPage} />
+      <Route path="/donate" component={DonatePage} />
       
       {/* Protected Routes for Different Roles */}
       <Route path="/dashboard/customer">
