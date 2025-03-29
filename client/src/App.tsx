@@ -14,7 +14,7 @@ import DealerDashboard from "@/pages/dealer-dashboard";
 import OrganizationDashboard from "@/pages/organization-dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
 import { ProtectedRoute } from "@/lib/protected-route";
-
+import verify from "@/pages/verify";
 function Router() {
   return (
     <Switch>
@@ -25,21 +25,41 @@ function Router() {
       <Route path="/contact" component={ContactPage} />
       <Route path="/media" component={MediaPage} />
       <Route path="/donate" component={DonatePage} />
-      
+      <Route
+        path="/loaderio-b33935e5c5b8cedbeaef1e93dda60ded/"
+        component={verify}
+      />
+
       {/* Protected Routes for Different Roles */}
       <Route path="/dashboard/customer">
-        <ProtectedRoute path="/dashboard/customer" component={CustomerDashboard} allowedRole="customer" />
+        <ProtectedRoute
+          path="/dashboard/customer"
+          component={CustomerDashboard}
+          allowedRole="customer"
+        />
       </Route>
       <Route path="/dashboard/dealer">
-        <ProtectedRoute path="/dashboard/dealer" component={DealerDashboard} allowedRole="dealer" />
+        <ProtectedRoute
+          path="/dashboard/dealer"
+          component={DealerDashboard}
+          allowedRole="dealer"
+        />
       </Route>
       <Route path="/dashboard/organization">
-        <ProtectedRoute path="/dashboard/organization" component={OrganizationDashboard} allowedRole="organization" />
+        <ProtectedRoute
+          path="/dashboard/organization"
+          component={OrganizationDashboard}
+          allowedRole="organization"
+        />
       </Route>
       <Route path="/dashboard/admin">
-        <ProtectedRoute path="/dashboard/admin" component={AdminDashboard} allowedRole="admin" />
+        <ProtectedRoute
+          path="/dashboard/admin"
+          component={AdminDashboard}
+          allowedRole="admin"
+        />
       </Route>
-      
+
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>
@@ -48,7 +68,7 @@ function Router() {
 
 function App() {
   console.log("Green Path: App component rendering");
-  
+
   return (
     <>
       <Router />
