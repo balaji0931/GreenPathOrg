@@ -14,7 +14,6 @@ import DealerDashboard from "@/pages/dealer-dashboard";
 import OrganizationDashboard from "@/pages/organization-dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
 import { ProtectedRoute } from "@/lib/protected-route";
-import verify from "@/pages/verify";
 function Router() {
   return (
     <Switch>
@@ -25,10 +24,6 @@ function Router() {
       <Route path="/contact" component={ContactPage} />
       <Route path="/media" component={MediaPage} />
       <Route path="/donate" component={DonatePage} />
-      <Route
-        path="/loaderio-b33935e5c5b8cedbeaef1e93dda60ded/"
-        component={verify}
-      />
 
       {/* Protected Routes for Different Roles */}
       <Route path="/dashboard/customer">
