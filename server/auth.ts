@@ -9,10 +9,8 @@ import { User as SelectUser } from "@shared/schema";
 import { z } from "zod";
 import nodemailer from 'nodemailer';
 import validator from 'validator';
-import dotenv from 'dotenv';
 
 // Load environment variables
-dotenv.config();
 
 declare global {
   namespace Express {
