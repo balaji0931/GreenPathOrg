@@ -18,7 +18,7 @@ export function TeamSection() {
     {
       name: "Bardawal Balaji Nayak",
       role: "Co-Founder & CEO",
-      bio: "Balaji leads the vision and development of a transformative waste management platform dedicated to building a cleaner, more sustainable future. I oversee strategy, technology, and partnerships, ensuring that individuals, organizations, and communities can efficiently manage waste, raise environmental concerns, and take action.",
+      bio: "Balaji leads the vision and development of a transformative waste management platform dedicated to building a cleaner, more sustainable future.",
       social: {
         email: "balajinayakbardawal@gmail.com",
         linkedin: "https://www.linkedin.com/in/balaji-nayak/",
@@ -50,7 +50,7 @@ export function TeamSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
           {team.map((member) => (
             <Card
               key={member.name}
