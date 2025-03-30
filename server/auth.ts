@@ -124,12 +124,7 @@ export function setupAuth(app: Express) {
           <div style="max-width: 550px; margin: auto; background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1);">
             
             <div style="text-align: center;">
-              <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
-              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2328a745' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z'/%3E%3Cpath d='M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12'/%3E%3C/svg%3E" 
-              alt="Green Path Logo" style="width: 24px; height: 24px; margin-left: 5px;">
-              <span style="font-size: 20px; font-weight: bold; color: #28a745;">Green Path</span>
-              </div>
-              <h2 style="color: #28a745; font-size: 22px; margin-bottom: 5px;">Welcome to Green Path! 🌍</h2>
+              <h1 style="color: #28a745; font-size: 22px; margin-bottom: 5px;">Welcome to Green Path! 🌍</h1>
               <p style="font-size: 16px; color: #555;">"A clean Earth is a happy Earth – let's make a difference together!"</p>
             </div>
             
@@ -164,7 +159,7 @@ export function setupAuth(app: Express) {
     
             <p style="font-size: 12px; text-align: center; color: #888; margin-top: 10px;">
               🌍 Green Path | Waste Management for a Cleaner Tomorrow  
-              <br>🌐 <a href="[Website URL]" style="color: #28a745;">Visit Our Website</a>
+              <br>🌐 <a href="www.greenpathorg.social" style="color: #28a745;">Visit Our Website</a>
             </p>
           </div>
         </div>
