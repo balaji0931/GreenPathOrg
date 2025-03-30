@@ -20,7 +20,7 @@ export function Footer() {
         <div className="grid md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <Leaf className="h-5 w-5 text-secondary" />
+              <Leaf className="h-10 w-10 text-secondary" />
               <span className="font-bold text-3xl">GREEN PATH</span>
             </div>
             <p className="text-neutral-medium mb-4">

@@ -22,8 +22,14 @@ export function Header() {
 
   const isActive = (path: string) => location === path;
 
-  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
-    <Link 
+  const NavLink = ({
+    href,
+    children,
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => (
+    <Link
       href={href}
       className={`font-medium transition ${
         isActive(href)
@@ -35,9 +41,15 @@ export function Header() {
     </Link>
   );
 
-  const MobileNavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
+  const MobileNavLink = ({
+    href,
+    children,
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => (
     <SheetClose asChild>
-      <Link 
+      <Link
         href={href}
         className={`block py-2 font-medium transition ${
           isActive(href)
@@ -54,8 +66,8 @@ export function Header() {
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <nav className="container mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <Leaf className="h-6 w-6 text-primary" />
-          <span className="font-bold text-xl text-primary">Green Path</span>
+          <Leaf className="h-10 w-10 text-primary" />
+          <span className="font-bold text-2xl text-primary">GREEN PATH</span>
         </Link>
 
         <div className="hidden md:flex items-center space-x-8">
@@ -68,10 +80,12 @@ export function Header() {
         <div className="flex items-center space-x-4">
           {user ? (
             <>
-              <Button variant="outline" className="hidden md:inline-flex" asChild>
-                <Link href={`/dashboard/${user.role}`}>
-                  Dashboard
-                </Link>
+              <Button
+                variant="outline"
+                className="hidden md:inline-flex"
+                asChild
+              >
+                <Link href={`/dashboard/${user.role}`}>Dashboard</Link>
               </Button>
               <Button onClick={handleLogout} variant="default">
                 Logout
@@ -79,15 +93,19 @@ export function Header() {
             </>
           ) : (
             <>
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white" asChild>
-                <Link href="/auth">
-                  Login
-                </Link>
+              <Button
+                variant="outline"
+                className="border-primary text-primary hover:bg-primary hover:text-white"
+                asChild
+              >
+                <Link href="/auth">Login</Link>
               </Button>
-              <Button variant="default" className="hidden md:inline-flex" asChild>
-                <Link href="/auth">
-                  Register
-                </Link>
+              <Button
+                variant="default"
+                className="hidden md:inline-flex"
+                asChild
+              >
+                <Link href="/auth">Register</Link>
               </Button>
             </>
           )}
@@ -112,7 +130,11 @@ export function Header() {
                   <MobileNavLink href="/auth">Login / Register</MobileNavLink>
                 ) : (
                   <SheetClose asChild>
-                    <Button onClick={handleLogout} variant="destructive" className="mt-4">
+                    <Button
+                      onClick={handleLogout}
+                      variant="destructive"
+                      className="mt-4"
+                    >
                       Logout
                     </Button>
                   </SheetClose>
