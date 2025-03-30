@@ -15,7 +15,7 @@ import { insertUserSchema, addressSchema } from "@shared/schema";
 import { Loader2, UserCircle2, Leaf } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 // Extended schema for client-side validation
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -86,7 +86,72 @@ export default function AuthPage() {
     loginMutation.mutate(data);
   };
 
+
+  const [verifyingEmail, setVerifyingEmail] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+
+  const verifyEmail = async (email: string) => {
+    try {
+      const response = await fetch('/api/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+
+      setOtpSent(true);
+      toast({
+        title: "OTP Sent",
+        description: "Please check your email for the verification code",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const verifyOtp = async (email: string, otp: string) => {
+    try {
+      const response = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+
+      setEmailVerified(true);
+      toast({
+        title: "Success",
+        description: "Email verified successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
   const onRegisterSubmit = (data: RegisterFormValues) => {
+    if (!emailVerified) {
+      toast({
+        title: "Error",
+        description: "Please verify your email first",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Remove confirmPassword as it's not needed in the API
     const { confirmPassword, ...registerData } = data;
     registerMutation.mutate(registerData);
@@ -148,13 +213,13 @@ export default function AuthPage() {
                               </p>
                             )}
                           </div>
-                          
+
                           <div className="text-right">
                             <a href="#" className="text-sm text-primary hover:underline">
                               Forgot password?
                             </a>
                           </div>
-                          
+
                           <Button 
                             type="submit" 
                             className="w-full"
@@ -194,16 +259,54 @@ export default function AuthPage() {
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                               <Label htmlFor="email">Email</Label>
-                              <Input
-                                id="email"
-                                type="email"
-                                placeholder="Your email address"
-                                {...registerForm.register("email")}
-                              />
+                              <div className="flex gap-2">
+                                <Input
+                                  id="email"
+                                  type="email"
+                                  placeholder="Your email address"
+                                  {...registerForm.register("email")}
+                                  disabled={emailVerified}
+                                />
+                                {!emailVerified && !otpSent && (
+                                  <Button 
+                                    type="button"
+                                    onClick={() => verifyEmail(registerForm.getValues("email"))}
+                                  >
+                                    Verify
+                                  </Button>
+                                )}
+                              </div>
                               {registerForm.formState.errors.email && (
                                 <p className="text-sm text-red-500">
                                   {registerForm.formState.errors.email.message}
                                 </p>
+                              )}
+                              {otpSent && !emailVerified && (
+                                <div className="mt-2">
+                                  <Label htmlFor="otp">Enter OTP</Label>
+                                  <div className="flex gap-2">
+                                    <InputOTP
+                                      value={otp}
+                                      onChange={setOtp}
+                                      maxLength={6}
+                                    >
+                                      <InputOTPGroup>
+                                        <InputOTPSlot index={0} />
+                                        <InputOTPSlot index={1} />
+                                        <InputOTPSlot index={2} />
+                                        <InputOTPSlot index={3} />
+                                        <InputOTPSlot index={4} />
+                                        <InputOTPSlot index={5} />
+                                      </InputOTPGroup>
+                                    </InputOTP>
+                                    <Button 
+                                      type="button"
+                                      onClick={() => verifyOtp(registerForm.getValues("email"), otp)}
+                                    >
+                                      Verify OTP
+                                    </Button>
+                                  </div>
+                                </div>
                               )}
                             </div>
 

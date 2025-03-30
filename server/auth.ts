@@ -7,6 +7,12 @@ import { promisify } from "util";
 import { storage, IStorage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
 import { z } from "zod";
+import nodemailer from 'nodemailer';
+import validator from 'validator';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 declare global {
   namespace Express {
@@ -95,10 +101,92 @@ export function setupAuth(app: Express) {
     }
   });
 
+  // Create nodemailer transporter
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD
+    }
+  });
+
+  // Store OTPs temporarily
+  const otpStore = new Map<string, { otp: string; timestamp: number }>();
+
+  async function sendOTP(email: string): Promise<string> {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Email Verification OTP',
+      text: `Your OTP for registration is: ${otp}. Valid for 10 minutes.`
+    });
+
+    otpStore.set(email, { 
+      otp, 
+      timestamp: Date.now() 
+    });
+
+    return otp;
+  }
+
+  app.post("/api/verify-email", async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!validator.isEmail(email)) {
+        return res.status(400).json({ message: "Invalid email format" });
+      }
+
+      const existingEmail = await storage.getUserByEmail(email);
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+
+      await sendOTP(email);
+      res.json({ message: "OTP sent successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to send OTP" });
+    }
+  });
+
+  app.post("/api/verify-otp", async (req, res) => {
+    const { email, otp } = req.body;
+    
+    const storedData = otpStore.get(email);
+    if (!storedData) {
+      return res.status(400).json({ message: "No OTP found for this email" });
+    }
+
+    if (Date.now() - storedData.timestamp > 600000) { // 10 minutes
+      otpStore.delete(email);
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    if (storedData.otp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    otpStore.delete(email);
+    // Store verification status
+    otpStore.set(email + '_verified', { timestamp: Date.now() });
+    res.json({ message: "OTP verified successfully" });
+  });
+
   app.post("/api/register", async (req, res, next) => {
     try {
+      const { email } = req.body;
+      
+      // Check if email was verified
+      const verifiedEmail = otpStore.get(email + '_verified');
+      if (!verifiedEmail) {
+        return res.status(400).json({ message: "Email not verified" });
+      }
+      otpStore.delete(email + '_verified');
+
       // Check if email already exists
-      const existingEmail = await storage.getUserByEmail(req.body.email);
+      const existingEmail = await storage.getUserByEmail(email);
       if (existingEmail) {
         return res.status(400).json({ message: "Email already registered" });
       }
