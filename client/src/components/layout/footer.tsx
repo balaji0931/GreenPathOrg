@@ -21,7 +21,7 @@ export function Footer() {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <Leaf className="h-5 w-5 text-secondary" />
-              <span className="font-bold text-lg">Green Path</span>
+              <span className="font-bold text-3xl">GREEN PATH</span>
             </div>
             <p className="text-neutral-medium mb-4">
               A community-driven waste management and donation platform designed
