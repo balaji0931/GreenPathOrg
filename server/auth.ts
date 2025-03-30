@@ -117,10 +117,55 @@ export function setupAuth(app: Express) {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Email Verification OTP',
-      text: `Your OTP for registration is: ${otp}. Valid for 10 minutes.`
+      subject: '🔐 Welcome to Green Path – Verify Your Email Now!',
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+          <div style="max-width: 550px; margin: auto; background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1);">
+            
+            <div style="text-align: center;">
+              <img src="https://via.placeholder.com/200x50.png?text=Green+Path" alt="Green Path Logo" style="width: 180px; margin-bottom: 10px;">
+              <h2 style="color: #28a745; font-size: 22px; margin-bottom: 5px;">Welcome to Green Path! 🌍</h2>
+              <p style="font-size: 16px; color: #555;">"A clean Earth is a happy Earth – let's make a difference together!"</p>
+            </div>
+            
+            <p style="font-size: 16px; color: #333;">Dear Valued User,</p>
+            <p style="font-size: 16px; color: #333;">
+              Thank you for joining <strong>Green Path</strong>, a community dedicated to waste management and a cleaner tomorrow. To complete your registration, please use the OTP below:
+            </p>
+    
+            <div style="font-size: 24px; font-weight: bold; text-align: center; color: #28a745; padding: 12px; border: 2px dashed #28a745; background: #f9fff9;">
+              ${otp}
+            </div>
+    
+            <p style="font-size: 14px; color: #555; text-align: center;">
+              This OTP is valid for <strong>10 minutes</strong>. Please do not share it with anyone.
+            </p>
+    
+            <p style="font-size: 14px; color: #555;">
+              If you did not request this, you can ignore this email.
+            </p>
+    
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+    
+            <p style="font-size: 16px; color: #333; text-align: center;">
+              Let's work together for a cleaner, greener future! 🌱  
+              <br><strong>Best Regards,</strong>
+            </p>
+    
+            <div style="text-align: center; font-size: 16px; font-weight: bold; color: #333;">
+              Balaji Nayak  
+              <br>🚀 Co-Founder & CEO, Green Path
+            </div>
+    
+            <p style="font-size: 12px; text-align: center; color: #888; margin-top: 10px;">
+              🌍 Green Path | Waste Management for a Cleaner Tomorrow  
+              <br>🌐 <a href="[Website URL]" style="color: #28a745;">Visit Our Website</a>
+            </p>
+          </div>
+        </div>
+      `
     });
-
+    
     otpStore.set(email, { 
       otp, 
       timestamp: Date.now() 
