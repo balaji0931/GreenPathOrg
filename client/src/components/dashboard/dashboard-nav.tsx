@@ -73,11 +73,6 @@ export function DashboardNav({
             label: "Leaderboard",
             icon: <Trophy className="h-5 w-5" />,
           },
-          {
-            id: "give-feedback",
-            label: "Give Feedback",
-            icon: <MessageSquare className="h-5 w-5" />,
-          },
         ];
       case "dealer":
         return [
@@ -107,11 +102,6 @@ export function DashboardNav({
             icon: <Calendar className="h-5 w-5" />,
           },
           {
-            id: "donate",
-            label: "Donate Items",
-            icon: <Gift className="h-5 w-5" />,
-          },
-          {
             id: "raise-issue",
             label: "Raise Issue",
             icon: <AlertTriangle className="h-5 w-5" />,
@@ -125,11 +115,6 @@ export function DashboardNav({
             id: "leaderboard",
             label: "Leaderboard",
             icon: <Trophy className="h-5 w-5" />,
-          },
-          {
-            id: "feedback",
-            label: "Feedback",
-            icon: <MessageSquare className="h-5 w-5" />,
           },
         ];
       case "organization":

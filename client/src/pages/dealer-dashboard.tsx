@@ -9,18 +9,45 @@ import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { SocialPointsCard } from "@/components/dashboard/social-points-card";
 import { Button } from "@/components/ui/button";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Loader2, Calendar, CheckCircle2, XCircle, Clock, Truck, 
-  Trophy, Gift, AlertTriangle, Package, Users, HeartHandshake, 
-  Plus, Filter, AlertCircle
+import {
+  Loader2,
+  Calendar,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Truck,
+  Trophy,
+  Gift,
+  AlertTriangle,
+  Package,
+  Users,
+  HeartHandshake,
+  Plus,
+  Filter,
+  AlertCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -35,7 +62,7 @@ type WasteReport = {
     coordinates?: {
       lat: number;
       lng: number;
-    }
+    };
   };
   images: string[];
   status: string;
@@ -67,7 +94,9 @@ export default function DealerDashboard() {
   const [isRaiseIssueDialogOpen, setIsRaiseIssueDialogOpen] = useState(false);
   const [isSeekHelpDialogOpen, setIsSeekHelpDialogOpen] = useState(false);
 
-  const { data: pendingReports, isLoading: isLoadingPending } = useQuery<WasteReport[]>({
+  const { data: pendingReports, isLoading: isLoadingPending } = useQuery<
+    WasteReport[]
+  >({
     queryKey: ["/api/waste-reports"],
     queryFn: async ({ queryKey }) => {
       const res = await fetch(queryKey[0] as string);
@@ -75,7 +104,7 @@ export default function DealerDashboard() {
       return await res.json();
     },
   });
-  
+
   const { data: events, isLoading: isLoadingEvents } = useQuery<Event[]>({
     queryKey: ["/api/events"],
     queryFn: async ({ queryKey }) => {
@@ -86,11 +115,11 @@ export default function DealerDashboard() {
   });
 
   const acceptMutation = useMutation({
-    mutationFn: async ({ id, date }: { id: number, date: string }) => {
+    mutationFn: async ({ id, date }: { id: number; date: string }) => {
       return await apiRequest("PUT", `/api/waste-reports/${id}`, {
         status: "scheduled",
         assignedDealerId: user?.id,
-        scheduledDate: date
+        scheduledDate: date,
       });
     },
     onSuccess: () => {
@@ -107,13 +136,13 @@ export default function DealerDashboard() {
         description: error.message,
         variant: "destructive",
       });
-    }
+    },
   });
 
   const rejectMutation = useMutation({
     mutationFn: async (id: number) => {
       return await apiRequest("PUT", `/api/waste-reports/${id}`, {
-        status: "rejected"
+        status: "rejected",
       });
     },
     onSuccess: () => {
@@ -129,13 +158,13 @@ export default function DealerDashboard() {
         description: error.message,
         variant: "destructive",
       });
-    }
+    },
   });
 
   const completePickupMutation = useMutation({
     mutationFn: async (id: number) => {
       return await apiRequest("PUT", `/api/waste-reports/${id}`, {
-        status: "completed"
+        status: "completed",
       });
     },
     onSuccess: () => {
@@ -151,13 +180,13 @@ export default function DealerDashboard() {
         description: error.message,
         variant: "destructive",
       });
-    }
+    },
   });
 
   const progressPickupMutation = useMutation({
     mutationFn: async (id: number) => {
       return await apiRequest("PUT", `/api/waste-reports/${id}`, {
-        status: "in_progress"
+        status: "in_progress",
       });
     },
     onSuccess: () => {
@@ -173,18 +202,22 @@ export default function DealerDashboard() {
         description: error.message,
         variant: "destructive",
       });
-    }
+    },
   });
 
-  const pendingPickups = pendingReports?.filter(report => report.status === "pending") || [];
-  const acceptedPickups = pendingReports?.filter(report => 
-    (report.status === "scheduled" || report.status === "in_progress") && 
-    report.assignedDealerId === user?.id
-  ) || [];
-  const completedPickups = pendingReports?.filter(report => 
-    report.status === "completed" && 
-    report.assignedDealerId === user?.id
-  ) || [];
+  const pendingPickups =
+    pendingReports?.filter((report) => report.status === "pending") || [];
+  const acceptedPickups =
+    pendingReports?.filter(
+      (report) =>
+        (report.status === "scheduled" || report.status === "in_progress") &&
+        report.assignedDealerId === user?.id
+    ) || [];
+  const completedPickups =
+    pendingReports?.filter(
+      (report) =>
+        report.status === "completed" && report.assignedDealerId === user?.id
+    ) || [];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -196,21 +229,22 @@ export default function DealerDashboard() {
               Dealer Dashboard
             </h1>
             <p className="text-neutral-dark">
-              Manage pickup requests, track completed pickups, and join community events.
+              Manage pickup requests, track completed pickups, and join
+              community events.
             </p>
           </div>
 
           <div className="grid md:grid-cols-12 gap-6">
             {/* Sidebar */}
             <div className="md:col-span-3">
-              <DashboardNav 
-                role="dealer" 
-                activeItem={activeTab} 
-                setActiveItem={setActiveTab} 
+              <DashboardNav
+                role="dealer"
+                activeItem={activeTab}
+                setActiveItem={setActiveTab}
               />
-              <SocialPointsCard 
-                points={user?.socialPoints || 0} 
-                badges={['Certified Dealer', 'Waste Collector']} 
+              <SocialPointsCard
+                points={user?.socialPoints || 0}
+                badges={["Certified Dealer", "Waste Collector"]}
               />
             </div>
 
@@ -218,11 +252,16 @@ export default function DealerDashboard() {
             <div className="md:col-span-9">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="mb-6 w-full md:w-auto">
-                  <TabsTrigger value="pending-pickups">Pending Pickups</TabsTrigger>
-                  <TabsTrigger value="accepted-pickups">Accepted Pickups</TabsTrigger>
-                  <TabsTrigger value="completed-pickups">Completed Pickups</TabsTrigger>
+                  <TabsTrigger value="pending-pickups">
+                    Pending Pickups
+                  </TabsTrigger>
+                  <TabsTrigger value="accepted-pickups">
+                    Accepted Pickups
+                  </TabsTrigger>
+                  <TabsTrigger value="completed-pickups">
+                    Completed Pickups
+                  </TabsTrigger>
                   <TabsTrigger value="events">Community Events</TabsTrigger>
-                  <TabsTrigger value="donate">Donate</TabsTrigger>
                   <TabsTrigger value="raise-issue">Raise Issue</TabsTrigger>
                   <TabsTrigger value="seek-help">Seek Help</TabsTrigger>
                   <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
@@ -233,7 +272,8 @@ export default function DealerDashboard() {
                     <CardHeader>
                       <CardTitle>Pending Pickup Requests</CardTitle>
                       <CardDescription>
-                        Review and accept pickup requests from customers in your area.
+                        Review and accept pickup requests from customers in your
+                        area.
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -244,63 +284,109 @@ export default function DealerDashboard() {
                       ) : pendingPickups.length > 0 ? (
                         <div className="grid gap-4">
                           {pendingPickups.map((report) => (
-                            <div key={report.id} className="border rounded-lg p-4">
+                            <div
+                              key={report.id}
+                              className="border rounded-lg p-4"
+                            >
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <h3 className="font-semibold">{report.title}</h3>
-                                  <p className="text-sm text-neutral-dark mt-1">{report.description}</p>
+                                  <h3 className="font-semibold">
+                                    {report.title}
+                                  </h3>
+                                  <p className="text-sm text-neutral-dark mt-1">
+                                    {report.description}
+                                  </p>
                                   <p className="text-sm text-neutral-dark mt-2">
-                                    <span className="font-medium">Location:</span> {report.location.address}, {report.location.city}
+                                    <span className="font-medium">
+                                      Location:
+                                    </span>{" "}
+                                    {report.location.address},{" "}
+                                    {report.location.city}
                                   </p>
                                   <div className="mt-2 text-sm">
-                                    <span className="font-medium">Waste Segregated:</span>{' '}
+                                    <span className="font-medium">
+                                      Waste Segregated:
+                                    </span>{" "}
                                     {report.isSegregated ? (
-                                      <span className="text-green-600">Yes</span>
+                                      <span className="text-green-600">
+                                        Yes
+                                      </span>
                                     ) : (
                                       <span className="text-red-600">No</span>
                                     )}
                                   </div>
                                   <p className="text-xs text-neutral-dark mt-2">
-                                    Reported on {new Date(report.createdAt).toLocaleDateString()}
+                                    Reported on{" "}
+                                    {new Date(
+                                      report.createdAt
+                                    ).toLocaleDateString()}
                                   </p>
                                 </div>
                                 <div className="space-y-2">
-                                  <Dialog open={openReportId === report.id} onOpenChange={(open) => {
-                                    if (!open) setOpenReportId(null);
-                                    else setOpenReportId(report.id);
-                                  }}>
+                                  <Dialog
+                                    open={openReportId === report.id}
+                                    onOpenChange={(open) => {
+                                      if (!open) setOpenReportId(null);
+                                      else setOpenReportId(report.id);
+                                    }}
+                                  >
                                     <DialogTrigger asChild>
-                                      <Button size="sm" onClick={() => setOpenReportId(report.id)}>
+                                      <Button
+                                        size="sm"
+                                        onClick={() =>
+                                          setOpenReportId(report.id)
+                                        }
+                                      >
                                         Accept
                                       </Button>
                                     </DialogTrigger>
                                     <DialogContent>
                                       <DialogHeader>
-                                        <DialogTitle>Schedule Pickup</DialogTitle>
+                                        <DialogTitle>
+                                          Schedule Pickup
+                                        </DialogTitle>
                                         <DialogDescription>
-                                          Set a date and time when you will pick up the waste.
+                                          Set a date and time when you will pick
+                                          up the waste.
                                         </DialogDescription>
                                       </DialogHeader>
                                       <div className="space-y-4 py-4">
                                         <div className="space-y-2">
-                                          <Label htmlFor="scheduled-date">Pickup Date & Time</Label>
+                                          <Label htmlFor="scheduled-date">
+                                            Pickup Date & Time
+                                          </Label>
                                           <Input
                                             id="scheduled-date"
                                             type="datetime-local"
                                             value={selectedDate}
-                                            onChange={(e) => setSelectedDate(e.target.value)}
+                                            onChange={(e) =>
+                                              setSelectedDate(e.target.value)
+                                            }
                                           />
                                         </div>
                                       </div>
                                       <DialogFooter>
-                                        <Button variant="outline" onClick={() => setOpenReportId(null)}>
+                                        <Button
+                                          variant="outline"
+                                          onClick={() => setOpenReportId(null)}
+                                        >
                                           Cancel
                                         </Button>
                                         <Button
-                                          onClick={() => acceptMutation.mutate({ id: report.id, date: selectedDate })}
-                                          disabled={!selectedDate || acceptMutation.isPending}
+                                          onClick={() =>
+                                            acceptMutation.mutate({
+                                              id: report.id,
+                                              date: selectedDate,
+                                            })
+                                          }
+                                          disabled={
+                                            !selectedDate ||
+                                            acceptMutation.isPending
+                                          }
                                         >
-                                          {acceptMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                          {acceptMutation.isPending && (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                          )}
                                           Confirm Pickup
                                         </Button>
                                       </DialogFooter>
@@ -309,10 +395,14 @@ export default function DealerDashboard() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => rejectMutation.mutate(report.id)}
+                                    onClick={() =>
+                                      rejectMutation.mutate(report.id)
+                                    }
                                     disabled={rejectMutation.isPending}
                                   >
-                                    {rejectMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    {rejectMutation.isPending && (
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    )}
                                     Reject
                                   </Button>
                                 </div>
@@ -345,27 +435,56 @@ export default function DealerDashboard() {
                       ) : acceptedPickups.length > 0 ? (
                         <div className="grid gap-4">
                           {acceptedPickups.map((report) => (
-                            <div key={report.id} className="border rounded-lg p-4">
+                            <div
+                              key={report.id}
+                              className="border rounded-lg p-4"
+                            >
                               <div className="flex justify-between items-start">
                                 <div>
                                   <div className="flex items-center gap-2">
-                                    <h3 className="font-semibold">{report.title}</h3>
-                                    <Badge variant={report.status === "scheduled" ? "outline" : "default"}>
-                                      {report.status === "scheduled" ? "Scheduled" : "In Progress"}
+                                    <h3 className="font-semibold">
+                                      {report.title}
+                                    </h3>
+                                    <Badge
+                                      variant={
+                                        report.status === "scheduled"
+                                          ? "outline"
+                                          : "default"
+                                      }
+                                    >
+                                      {report.status === "scheduled"
+                                        ? "Scheduled"
+                                        : "In Progress"}
                                     </Badge>
                                   </div>
-                                  <p className="text-sm text-neutral-dark mt-1">{report.description}</p>
+                                  <p className="text-sm text-neutral-dark mt-1">
+                                    {report.description}
+                                  </p>
                                   <p className="text-sm text-neutral-dark mt-2">
-                                    <span className="font-medium">Location:</span> {report.location.address}, {report.location.city}
+                                    <span className="font-medium">
+                                      Location:
+                                    </span>{" "}
+                                    {report.location.address},{" "}
+                                    {report.location.city}
                                   </p>
                                   <p className="text-sm text-neutral-dark mt-1">
-                                    <span className="font-medium">Scheduled for:</span> {report.scheduledDate ? 
-                                      new Date(report.scheduledDate).toLocaleString() : 'Not scheduled'}
+                                    <span className="font-medium">
+                                      Scheduled for:
+                                    </span>{" "}
+                                    {report.scheduledDate
+                                      ? new Date(
+                                          report.scheduledDate
+                                        ).toLocaleString()
+                                      : "Not scheduled"}
                                   </p>
                                   <div className="mt-2 text-sm">
-                                    <span className="font-medium">Waste Segregated:</span>{' '}
+                                    <span className="font-medium">
+                                      Waste Segregated:
+                                    </span>{" "}
                                     {report.isSegregated ? (
-                                      <span className="text-green-600">Yes</span>
+                                      <span className="text-green-600">
+                                        Yes
+                                      </span>
                                     ) : (
                                       <span className="text-red-600">No</span>
                                     )}
@@ -375,19 +494,31 @@ export default function DealerDashboard() {
                                   {report.status === "scheduled" ? (
                                     <Button
                                       size="sm"
-                                      onClick={() => progressPickupMutation.mutate(report.id)}
-                                      disabled={progressPickupMutation.isPending}
+                                      onClick={() =>
+                                        progressPickupMutation.mutate(report.id)
+                                      }
+                                      disabled={
+                                        progressPickupMutation.isPending
+                                      }
                                     >
-                                      {progressPickupMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                      {progressPickupMutation.isPending && (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      )}
                                       Start Pickup
                                     </Button>
                                   ) : (
                                     <Button
                                       size="sm"
-                                      onClick={() => completePickupMutation.mutate(report.id)}
-                                      disabled={completePickupMutation.isPending}
+                                      onClick={() =>
+                                        completePickupMutation.mutate(report.id)
+                                      }
+                                      disabled={
+                                        completePickupMutation.isPending
+                                      }
                                     >
-                                      {completePickupMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                      {completePickupMutation.isPending && (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      )}
                                       Complete Pickup
                                     </Button>
                                   )}
@@ -410,7 +541,8 @@ export default function DealerDashboard() {
                     <CardHeader>
                       <CardTitle>Completed Pickups</CardTitle>
                       <CardDescription>
-                        View your pickup history and completed waste collections.
+                        View your pickup history and completed waste
+                        collections.
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -421,22 +553,42 @@ export default function DealerDashboard() {
                       ) : completedPickups.length > 0 ? (
                         <div className="grid gap-4">
                           {completedPickups.map((report) => (
-                            <div key={report.id} className="border rounded-lg p-4">
+                            <div
+                              key={report.id}
+                              className="border rounded-lg p-4"
+                            >
                               <div className="flex justify-between items-start">
                                 <div>
                                   <div className="flex items-center gap-2">
-                                    <h3 className="font-semibold">{report.title}</h3>
-                                    <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100">
+                                    <h3 className="font-semibold">
+                                      {report.title}
+                                    </h3>
+                                    <Badge
+                                      variant="outline"
+                                      className="bg-green-100 text-green-800 hover:bg-green-100"
+                                    >
                                       Completed
                                     </Badge>
                                   </div>
-                                  <p className="text-sm text-neutral-dark mt-1">{report.description}</p>
+                                  <p className="text-sm text-neutral-dark mt-1">
+                                    {report.description}
+                                  </p>
                                   <p className="text-sm text-neutral-dark mt-2">
-                                    <span className="font-medium">Location:</span> {report.location.address}, {report.location.city}
+                                    <span className="font-medium">
+                                      Location:
+                                    </span>{" "}
+                                    {report.location.address},{" "}
+                                    {report.location.city}
                                   </p>
                                   <p className="text-sm text-neutral-dark mt-1">
-                                    <span className="font-medium">Scheduled for:</span> {report.scheduledDate ? 
-                                      new Date(report.scheduledDate).toLocaleString() : 'Not scheduled'}
+                                    <span className="font-medium">
+                                      Scheduled for:
+                                    </span>{" "}
+                                    {report.scheduledDate
+                                      ? new Date(
+                                          report.scheduledDate
+                                        ).toLocaleString()
+                                      : "Not scheduled"}
                                   </p>
                                 </div>
                               </div>
@@ -457,7 +609,8 @@ export default function DealerDashboard() {
                     <CardHeader>
                       <CardTitle>Community Events</CardTitle>
                       <CardDescription>
-                        Join cleanup drives and environmental initiatives in your area.
+                        Join cleanup drives and environmental initiatives in
+                        your area.
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -468,20 +621,39 @@ export default function DealerDashboard() {
                       ) : events && events.length > 0 ? (
                         <div className="grid gap-4">
                           {events.map((event) => (
-                            <div key={event.id} className="border rounded-lg p-4">
+                            <div
+                              key={event.id}
+                              className="border rounded-lg p-4"
+                            >
                               <div className="flex gap-4">
                                 <div className="bg-primary/10 rounded-lg p-3 h-fit">
                                   <Calendar className="h-6 w-6 text-primary" />
                                 </div>
                                 <div>
-                                  <h3 className="font-semibold">{event.title}</h3>
-                                  <p className="text-sm text-neutral-dark mt-1">{event.description}</p>
+                                  <h3 className="font-semibold">
+                                    {event.title}
+                                  </h3>
+                                  <p className="text-sm text-neutral-dark mt-1">
+                                    {event.description}
+                                  </p>
                                   <div className="flex flex-wrap gap-4 mt-2">
                                     <div className="text-sm">
-                                      <span className="font-medium">Date:</span> {new Date(event.date).toLocaleDateString()} at {new Date(event.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                      <span className="font-medium">Date:</span>{" "}
+                                      {new Date(
+                                        event.date
+                                      ).toLocaleDateString()}{" "}
+                                      at{" "}
+                                      {new Date(event.date).toLocaleTimeString(
+                                        [],
+                                        { hour: "2-digit", minute: "2-digit" }
+                                      )}
                                     </div>
                                     <div className="text-sm">
-                                      <span className="font-medium">Location:</span> {event.location.address}, {event.location.city}
+                                      <span className="font-medium">
+                                        Location:
+                                      </span>{" "}
+                                      {event.location.address},{" "}
+                                      {event.location.city}
                                     </div>
                                   </div>
                                   <div className="mt-4">
@@ -509,7 +681,8 @@ export default function DealerDashboard() {
                         <CardTitle>Donate Items</CardTitle>
                       </div>
                       <CardDescription>
-                        Donate unused items to those in need and help reduce waste
+                        Donate unused items to those in need and help reduce
+                        waste
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -561,9 +734,12 @@ export default function DealerDashboard() {
         </div>
       </main>
       <Footer />
-      
+
       {/* Donation Dialog */}
-      <Dialog open={isDonationDialogOpen} onOpenChange={setIsDonationDialogOpen}>
+      <Dialog
+        open={isDonationDialogOpen}
+        onOpenChange={setIsDonationDialogOpen}
+      >
         <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Donate Items</DialogTitle>
@@ -573,7 +749,10 @@ export default function DealerDashboard() {
       </Dialog>
 
       {/* Raise Issue Dialog */}
-      <Dialog open={isRaiseIssueDialogOpen} onOpenChange={setIsRaiseIssueDialogOpen}>
+      <Dialog
+        open={isRaiseIssueDialogOpen}
+        onOpenChange={setIsRaiseIssueDialogOpen}
+      >
         <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Raise an Issue</DialogTitle>
@@ -583,7 +762,10 @@ export default function DealerDashboard() {
       </Dialog>
 
       {/* Seek Help Dialog */}
-      <Dialog open={isSeekHelpDialogOpen} onOpenChange={setIsSeekHelpDialogOpen}>
+      <Dialog
+        open={isSeekHelpDialogOpen}
+        onOpenChange={setIsSeekHelpDialogOpen}
+      >
         <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Request Community Help</DialogTitle>
