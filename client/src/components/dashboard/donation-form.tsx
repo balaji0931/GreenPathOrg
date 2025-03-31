@@ -1,10 +1,23 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -20,7 +33,7 @@ const donationFormSchema = insertDonationSchema.extend({
     address: z.string().min(1, "Address is required"),
     city: z.string().min(1, "City is required"),
     pinCode: z.string().min(1, "PIN code is required"),
-  })
+  }),
 });
 
 type DonationFormValues = z.infer<typeof donationFormSchema>;
@@ -28,7 +41,7 @@ type DonationFormValues = z.infer<typeof donationFormSchema>;
 export function DonationForm() {
   const { toast } = useToast();
   const { user } = useAuth();
-  
+
   const form = useForm<DonationFormValues>({
     resolver: zodResolver(donationFormSchema),
     defaultValues: {
@@ -41,8 +54,8 @@ export function DonationForm() {
       location: {
         address: "",
         city: "",
-        pinCode: ""
-      }
+        pinCode: "",
+      },
     },
   });
 
@@ -57,7 +70,7 @@ export function DonationForm() {
         quantity: parseInt(data.quantity),
         location: data.location,
         images: data.images || [],
-        status: "available"
+        status: "available",
       };
       const response = await apiRequest("POST", "/api/donations", formData);
       return response.json();
@@ -65,7 +78,8 @@ export function DonationForm() {
     onSuccess: () => {
       toast({
         title: "Donation Listed",
-        description: "Your item has been listed for donation. Organizations will be able to request it.",
+        description:
+          "Your item has been listed for donation. Organizations will be able to request it.",
       });
       form.reset();
       queryClient.invalidateQueries({ queryKey: ["/api/donations"] });
@@ -93,7 +107,7 @@ export function DonationForm() {
     "Appliances",
     "School Supplies",
     "Medical Supplies",
-    "Other"
+    "Other",
   ];
 
   return (
@@ -106,13 +120,16 @@ export function DonationForm() {
             <FormItem>
               <FormLabel>Item Name</FormLabel>
               <FormControl>
-                <Input placeholder="E.g., Study Table, Winter Clothes" {...field} />
+                <Input
+                  placeholder="E.g., Study Table, Winter Clothes"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="description"
@@ -129,7 +146,7 @@ export function DonationForm() {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="category"
@@ -179,7 +196,7 @@ export function DonationForm() {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="quantity"
@@ -187,21 +204,21 @@ export function DonationForm() {
             <FormItem>
               <FormLabel>Quantity</FormLabel>
               <FormControl>
-                <Input 
-                  type="number" 
-                  min="1" 
-                  placeholder="Number of items" 
-                  {...field} 
+                <Input
+                  type="number"
+                  min="1"
+                  placeholder="Number of items"
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <div className="space-y-4">
           <h3 className="text-md font-medium">Pickup Location</h3>
-          
+
           <FormField
             control={form.control}
             name="location.address"
@@ -215,7 +232,7 @@ export function DonationForm() {
               </FormItem>
             )}
           />
-          
+
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -230,7 +247,7 @@ export function DonationForm() {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="location.pinCode"
@@ -246,8 +263,8 @@ export function DonationForm() {
             />
           </div>
         </div>
-        
-        <Button 
+
+        <Button
           type="submit"
           disabled={createDonationMutation.isPending}
           className="w-full"

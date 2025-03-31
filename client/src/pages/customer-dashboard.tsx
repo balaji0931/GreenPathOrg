@@ -1,4 +1,5 @@
 import { Header } from "@/components/layout/header";
+import { Link, useLocation } from "wouter";
 import { Footer } from "@/components/layout/footer";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { SchedulePickupForm } from "@/components/dashboard/schedule-pickup-form";
@@ -12,24 +13,75 @@ import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { 
-  Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  CalendarClock, Calendar, Loader2, MapPin, 
-  Package, BadgeCheck, Clock, AlertCircle, Trash2, Gift, Plus, 
-  Trophy, Filter, Upload, Info, Check, AlertTriangle, MapPinned,
-  Users, HeartHandshake, Megaphone, MessageSquare
+import {
+  CalendarClock,
+  Calendar,
+  Loader2,
+  MapPin,
+  Package,
+  BadgeCheck,
+  Clock,
+  AlertCircle,
+  Trash2,
+  Gift,
+  Plus,
+  Trophy,
+  Filter,
+  Upload,
+  Info,
+  Check,
+  AlertTriangle,
+  MapPinned,
+  Users,
+  HeartHandshake,
+  Megaphone,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,7 +109,8 @@ export default function CustomerDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isWasteReportDialogOpen, setIsWasteReportDialogOpen] = useState(false);
   const [isDonationDialogOpen, setIsDonationDialogOpen] = useState(false);
-  const [isSchedulePickupDialogOpen, setIsSchedulePickupDialogOpen] = useState(false);
+  const [isSchedulePickupDialogOpen, setIsSchedulePickupDialogOpen] =
+    useState(false);
   const [isRaiseIssueDialogOpen, setIsRaiseIssueDialogOpen] = useState(false);
   const [isSeekHelpDialogOpen, setIsSeekHelpDialogOpen] = useState(false);
   const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
@@ -114,16 +167,20 @@ export default function CustomerDashboard() {
 
   // Form for feedback
   const feedbackForm = useForm({
-    resolver: zodResolver(z.object({
-      rating: z.string().min(1, "Please select a rating"),
-      comments: z.string().min(10, "Please provide more details in your feedback"),
-      feedbackType: z.string().min(1, "Please select a feedback type"),
-    })),
+    resolver: zodResolver(
+      z.object({
+        rating: z.string().min(1, "Please select a rating"),
+        comments: z
+          .string()
+          .min(10, "Please provide more details in your feedback"),
+        feedbackType: z.string().min(1, "Please select a feedback type"),
+      })
+    ),
     defaultValues: {
       rating: "",
       comments: "",
       feedbackType: "",
-    }
+    },
   });
 
   // Submit feedback mutation
@@ -134,7 +191,7 @@ export default function CustomerDashboard() {
         userId: user?.id,
         createdAt: new Date().toISOString(),
       };
-      
+
       const response = await apiRequest("POST", "/api/feedback", feedbackData);
       return response.json();
     },
@@ -152,16 +209,20 @@ export default function CustomerDashboard() {
         description: error.message,
         variant: "destructive",
       });
-    }
+    },
   });
 
   // Join event mutation
   const joinEventMutation = useMutation({
     mutationFn: async (eventId: number) => {
-      const response = await apiRequest("POST", `/api/events/${eventId}/participants`, {
-        userId: user?.id,
-        eventId
-      });
+      const response = await apiRequest(
+        "POST",
+        `/api/events/${eventId}/participants`,
+        {
+          userId: user?.id,
+          eventId,
+        }
+      );
       return response.json();
     },
     onSuccess: () => {
@@ -177,7 +238,7 @@ export default function CustomerDashboard() {
         description: error.message,
         variant: "destructive",
       });
-    }
+    },
   });
 
   // Handle joining an event
@@ -197,13 +258,17 @@ export default function CustomerDashboard() {
         <>
           {/* Welcome Section */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-2">Welcome back, {user?.fullName || "Customer"}!</h1>
-            <p className="text-neutral-dark">Here's what's happening with your Green Path account.</p>
+            <h1 className="text-2xl font-bold mb-2">
+              Welcome back, {user?.fullName || "Customer"}!
+            </h1>
+            <p className="text-neutral-dark">
+              Here's what's happening with your Green Path account.
+            </p>
           </div>
-          
+
           {/* Quick Action Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-            <Card 
+            <Card
               className="bg-gradient-to-br from-green-50 to-green-100 hover:shadow-md transition-shadow duration-300 cursor-pointer border-0"
               onClick={() => setIsSchedulePickupDialogOpen(true)}
             >
@@ -217,23 +282,21 @@ export default function CustomerDashboard() {
                 </div>
               </CardContent>
             </Card>
-            
-            <Card 
-              className="bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-md transition-shadow duration-300 cursor-pointer border-0"
-              onClick={() => setIsDonationDialogOpen(true)}
-            >
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="bg-white p-2 rounded-full">
-                  <Gift className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Donate Items</p>
-                  <p className="text-xs text-gray-500">Help others</p>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card 
+
+            <Link href="/donate">
+              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-md transition-shadow duration-300 cursor-pointer border-0">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="bg-white p-2 rounded-full">
+                    <Gift className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Donate Items</p>
+                    <p className="text-xs text-gray-500">Help others</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+            <Card
               className="bg-gradient-to-br from-amber-50 to-amber-100 hover:shadow-md transition-shadow duration-300 cursor-pointer border-0"
               onClick={() => setIsRaiseIssueDialogOpen(true)}
             >
@@ -247,8 +310,8 @@ export default function CustomerDashboard() {
                 </div>
               </CardContent>
             </Card>
-            
-            <Card 
+
+            <Card
               className="bg-gradient-to-br from-purple-50 to-purple-100 hover:shadow-md transition-shadow duration-300 cursor-pointer border-0"
               onClick={() => setActiveTab("leaderboard")}
             >
@@ -258,12 +321,14 @@ export default function CustomerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm font-medium">My Points</p>
-                  <p className="text-xs text-gray-500">{user?.socialPoints || 0} points</p>
+                  <p className="text-xs text-gray-500">
+                    {user?.socialPoints || 0} points
+                  </p>
                 </div>
               </CardContent>
             </Card>
           </div>
-          
+
           {/* Upcoming Events Section */}
           <Card className="mb-6">
             <CardHeader className="pb-3">
@@ -273,7 +338,11 @@ export default function CustomerDashboard() {
                   <CardTitle>Upcoming Events</CardTitle>
                 </div>
                 {events && events.length > 3 && (
-                  <Button variant="ghost" size="sm" onClick={() => setActiveTab("events")}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setActiveTab("events")}
+                  >
                     View All
                   </Button>
                 )}
@@ -290,28 +359,37 @@ export default function CustomerDashboard() {
                     <div key={event.id} className="border rounded-lg p-4">
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-semibold">{event.title}</h3>
-                        <Badge variant={
-                          event.status === 'upcoming' ? 'default' : 
-                          event.status === 'ongoing' ? 'secondary' : 'outline'
-                        }>
+                        <Badge
+                          variant={
+                            event.status === "upcoming"
+                              ? "default"
+                              : event.status === "ongoing"
+                              ? "secondary"
+                              : "outline"
+                          }
+                        >
                           {event.status}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600 mb-3">{event.description.substring(0, 100)}...</p>
+                      <p className="text-sm text-gray-600 mb-3">
+                        {event.description.substring(0, 100)}...
+                      </p>
                       <div className="flex items-center text-sm text-gray-500 gap-4">
                         <div className="flex items-center">
                           <CalendarClock className="h-4 w-4 mr-1" />
-                          <span>{new Date(event.date).toLocaleDateString()}</span>
+                          <span>
+                            {new Date(event.date).toLocaleDateString()}
+                          </span>
                         </div>
                         <div className="flex items-center">
                           <MapPin className="h-4 w-4 mr-1" />
                           <span>{event.location.city}</span>
                         </div>
                       </div>
-                      
+
                       <div className="mt-3 pt-3 border-t flex justify-end">
-                        <Button 
-                          variant="default" 
+                        <Button
+                          variant="default"
                           size="sm"
                           onClick={() => handleJoinEvent(event.id)}
                           disabled={joinEventMutation.isPending}
@@ -321,7 +399,9 @@ export default function CustomerDashboard() {
                               <Loader2 className="h-4 w-4 mr-1 animate-spin" />
                               Joining...
                             </>
-                          ) : "Join Event"}
+                          ) : (
+                            "Join Event"
+                          )}
                         </Button>
                       </div>
                     </div>
@@ -331,12 +411,14 @@ export default function CustomerDashboard() {
                 <div className="text-center py-6 text-gray-500">
                   <AlertCircle className="mx-auto h-10 w-10 mb-2 text-gray-400" />
                   <p>No upcoming events found at the moment.</p>
-                  <p className="text-sm mt-1">Check back later or create your own event!</p>
+                  <p className="text-sm mt-1">
+                    Check back later or create your own event!
+                  </p>
                 </div>
               )}
             </CardContent>
           </Card>
-          
+
           {/* Help Requests Section */}
           <Card className="mb-6">
             <CardHeader className="pb-3">
@@ -346,17 +428,17 @@ export default function CustomerDashboard() {
                   <CardTitle>Help Requests</CardTitle>
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => setIsSeekHelpDialogOpen(true)}
                   >
                     <HeartHandshake className="h-4 w-4 mr-1" />
                     Request Help
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setActiveTab("help-others")}
                   >
                     View All
@@ -372,9 +454,16 @@ export default function CustomerDashboard() {
               ) : helpRequests && helpRequests.length > 0 ? (
                 <div className="grid gap-4">
                   {helpRequests.slice(0, 2).map((request: any) => (
-                    <div key={request.id} className={`border rounded-lg p-4 ${request.isUrgent ? 'border-red-300 bg-red-50/30' : ''}`}>
+                    <div
+                      key={request.id}
+                      className={`border rounded-lg p-4 ${
+                        request.isUrgent ? "border-red-300 bg-red-50/30" : ""
+                      }`}
+                    >
                       {request.isUrgent && (
-                        <Badge variant="destructive" className="mb-2">Urgent</Badge>
+                        <Badge variant="destructive" className="mb-2">
+                          Urgent
+                        </Badge>
                       )}
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-semibold">{request.title}</h3>
@@ -382,14 +471,16 @@ export default function CustomerDashboard() {
                           {new Date(request.date).toLocaleDateString()}
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 mb-3">{request.description.substring(0, 80)}...</p>
+                      <p className="text-sm text-gray-600 mb-3">
+                        {request.description.substring(0, 80)}...
+                      </p>
                       <div className="flex justify-between items-center">
                         <div className="flex items-center text-sm text-gray-500">
                           <MapPin className="h-4 w-4 mr-1" />
                           <span>{request.location}</span>
                         </div>
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => setActiveTab("help-others")}
                         >
@@ -403,12 +494,14 @@ export default function CustomerDashboard() {
                 <div className="text-center py-6 text-gray-500">
                   <Users className="mx-auto h-10 w-10 mb-2 text-gray-400" />
                   <p>No help requests at the moment.</p>
-                  <p className="text-sm mt-1">Ask for community assistance or volunteer to help others!</p>
+                  <p className="text-sm mt-1">
+                    Ask for community assistance or volunteer to help others!
+                  </p>
                 </div>
               )}
             </CardContent>
           </Card>
-          
+
           {/* Your Recent Activity */}
           <Card className="mb-6">
             <CardHeader className="pb-3">
@@ -417,18 +510,21 @@ export default function CustomerDashboard() {
                   <Clock className="h-5 w-5 text-primary" />
                   <CardTitle>Your Recent Activity</CardTitle>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="hidden sm:flex" 
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden sm:flex"
                   onClick={() => {
-                    if ((wasteReports && wasteReports.length > 0)) {
+                    if (wasteReports && wasteReports.length > 0) {
                       setActiveTab("waste-reports");
-                    } else if ((donations && donations.length > 0)) {
+                    } else if (donations && donations.length > 0) {
                       setActiveTab("donations");
                     }
                   }}
-                  disabled={!(wasteReports && wasteReports.length > 0) && !(donations && donations.length > 0)}
+                  disabled={
+                    !(wasteReports && wasteReports.length > 0) &&
+                    !(donations && donations.length > 0)
+                  }
                 >
                   View All Activity
                 </Button>
@@ -439,92 +535,119 @@ export default function CustomerDashboard() {
                 <div className="flex justify-center py-6">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 </div>
-              ) : (wasteReports && wasteReports.length > 0) || 
-                   (donations && donations.length > 0) || 
-                   (issues && issues.length > 0) ? (
+              ) : (wasteReports && wasteReports.length > 0) ||
+                (donations && donations.length > 0) ||
+                (issues && issues.length > 0) ? (
                 <div className="space-y-4">
-                  {wasteReports && wasteReports.slice(0, 1).map((report: any) => (
-                    <div key={report.id} className="flex items-start gap-3 pb-3 border-b">
-                      <div className="bg-primary/10 p-2 rounded-full">
-                        <Package className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between">
-                          <h4 className="font-medium">{report.title}</h4>
-                          <Badge variant={
-                            report.status === 'completed' ? 'secondary' :
-                            report.status === 'in_progress' ? 'default' :
-                            report.status === 'scheduled' ? 'secondary' :
-                            'outline'
-                          }>
-                            {report.status}
-                          </Badge>
+                  {wasteReports &&
+                    wasteReports.slice(0, 1).map((report: any) => (
+                      <div
+                        key={report.id}
+                        className="flex items-start gap-3 pb-3 border-b"
+                      >
+                        <div className="bg-primary/10 p-2 rounded-full">
+                          <Package className="h-5 w-5 text-primary" />
                         </div>
-                        <p className="text-sm text-gray-500">
-                          {new Date(report.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {donations && donations.slice(0, 1).map((donation: any) => (
-                    <div key={donation.id} className="flex items-start gap-3 pb-3 border-b">
-                      <div className="bg-primary/10 p-2 rounded-full">
-                        <Gift className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between">
-                          <h4 className="font-medium">{donation.itemName}</h4>
-                          <Badge variant={
-                            donation.status === 'completed' ? 'secondary' :
-                            donation.status === 'matched' ? 'default' :
-                            donation.status === 'requested' ? 'secondary' :
-                            'outline'
-                          }>
-                            {donation.status}
-                          </Badge>
+                        <div className="flex-1">
+                          <div className="flex justify-between">
+                            <h4 className="font-medium">{report.title}</h4>
+                            <Badge
+                              variant={
+                                report.status === "completed"
+                                  ? "secondary"
+                                  : report.status === "in_progress"
+                                  ? "default"
+                                  : report.status === "scheduled"
+                                  ? "secondary"
+                                  : "outline"
+                              }
+                            >
+                              {report.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-500">
+                            {new Date(report.createdAt).toLocaleDateString()}
+                          </p>
                         </div>
-                        <p className="text-sm text-gray-500">
-                          {new Date(donation.createdAt).toLocaleDateString()}
-                        </p>
                       </div>
-                    </div>
-                  ))}
-                  
-                  {issues && issues.slice(0, 1).map((issue: any) => (
-                    <div key={issue.id} className="flex items-start gap-3 pb-3 border-b">
-                      <div className="bg-primary/10 p-2 rounded-full">
-                        <AlertTriangle className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between">
-                          <h4 className="font-medium">{issue.title}</h4>
-                          <Badge variant={
-                            issue.status === 'resolved' ? 'secondary' :
-                            issue.status === 'in_progress' ? 'default' :
-                            issue.isUrgent ? 'destructive' :
-                            'outline'
-                          }>
-                            {issue.status}
-                          </Badge>
+                    ))}
+
+                  {donations &&
+                    donations.slice(0, 1).map((donation: any) => (
+                      <div
+                        key={donation.id}
+                        className="flex items-start gap-3 pb-3 border-b"
+                      >
+                        <div className="bg-primary/10 p-2 rounded-full">
+                          <Gift className="h-5 w-5 text-primary" />
                         </div>
-                        <p className="text-sm text-gray-500">
-                          {new Date(issue.createdAt).toLocaleDateString()}
-                        </p>
+                        <div className="flex-1">
+                          <div className="flex justify-between">
+                            <h4 className="font-medium">{donation.itemName}</h4>
+                            <Badge
+                              variant={
+                                donation.status === "completed"
+                                  ? "secondary"
+                                  : donation.status === "matched"
+                                  ? "default"
+                                  : donation.status === "requested"
+                                  ? "secondary"
+                                  : "outline"
+                              }
+                            >
+                              {donation.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-500">
+                            {new Date(donation.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                  
+                    ))}
+
+                  {issues &&
+                    issues.slice(0, 1).map((issue: any) => (
+                      <div
+                        key={issue.id}
+                        className="flex items-start gap-3 pb-3 border-b"
+                      >
+                        <div className="bg-primary/10 p-2 rounded-full">
+                          <AlertTriangle className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex justify-between">
+                            <h4 className="font-medium">{issue.title}</h4>
+                            <Badge
+                              variant={
+                                issue.status === "resolved"
+                                  ? "secondary"
+                                  : issue.status === "in_progress"
+                                  ? "default"
+                                  : issue.isUrgent
+                                  ? "destructive"
+                                  : "outline"
+                              }
+                            >
+                              {issue.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-500">
+                            {new Date(issue.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+
                   <div className="flex justify-center pt-2 sm:hidden">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => {
-                        if ((wasteReports && wasteReports.length > 0)) {
+                        if (wasteReports && wasteReports.length > 0) {
                           setActiveTab("waste-reports");
-                        } else if ((donations && donations.length > 0)) {
+                        } else if (donations && donations.length > 0) {
                           setActiveTab("donations");
-                        } else if ((issues && issues.length > 0)) {
+                        } else if (issues && issues.length > 0) {
                           setActiveTab("raise-issue");
                         }
                       }}
@@ -536,15 +659,30 @@ export default function CustomerDashboard() {
               ) : (
                 <div className="text-center py-6 text-gray-500">
                   <AlertCircle className="mx-auto h-10 w-10 mb-2 text-gray-400" />
-                  <p>No activity found. Start by scheduling a pickup or reporting an issue!</p>
+                  <p>
+                    No activity found. Start by scheduling a pickup or reporting
+                    an issue!
+                  </p>
                   <div className="mt-4 flex flex-wrap gap-2 justify-center">
-                    <Button variant="outline" size="sm" onClick={() => setIsSchedulePickupDialogOpen(true)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsSchedulePickupDialogOpen(true)}
+                    >
                       Schedule Pickup
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => setIsDonationDialogOpen(true)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsDonationDialogOpen(true)}
+                    >
                       Donate Items
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => setIsRaiseIssueDialogOpen(true)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsRaiseIssueDialogOpen(true)}
+                    >
                       Raise Issue
                     </Button>
                   </div>
@@ -552,7 +690,7 @@ export default function CustomerDashboard() {
               )}
             </CardContent>
           </Card>
-          
+
           {/* Environmental Impact */}
           <Card>
             <CardHeader>
@@ -564,33 +702,53 @@ export default function CustomerDashboard() {
             <CardContent>
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-gray-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold mb-1">{wasteReports?.length || 0}</div>
+                  <div className="text-3xl font-bold mb-1">
+                    {wasteReports?.length || 0}
+                  </div>
                   <div className="text-sm text-neutral-dark">Waste Reports</div>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold mb-1">{donations?.length || 0}</div>
+                  <div className="text-3xl font-bold mb-1">
+                    {donations?.length || 0}
+                  </div>
                   <div className="text-sm text-neutral-dark">Donations</div>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold mb-1">{user?.socialPoints || 0}</div>
+                  <div className="text-3xl font-bold mb-1">
+                    {user?.socialPoints || 0}
+                  </div>
                   <div className="text-sm text-neutral-dark">Points</div>
                 </div>
               </div>
-              
+
               <div className="mt-6">
                 <h4 className="font-medium mb-3">Environmental Stats</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="border rounded-lg p-4">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-gray-500">CO2 Emission Saved</span>
-                      <Badge variant="outline" className="text-green-600 bg-green-50">+2.5kg</Badge>
+                      <span className="text-sm text-gray-500">
+                        CO2 Emission Saved
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="text-green-600 bg-green-50"
+                      >
+                        +2.5kg
+                      </Badge>
                     </div>
                     <div className="font-semibold">12.5 kg</div>
                   </div>
                   <div className="border rounded-lg p-4">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-gray-500">Waste Recycled</span>
-                      <Badge variant="outline" className="text-blue-600 bg-blue-50">+3kg</Badge>
+                      <span className="text-sm text-gray-500">
+                        Waste Recycled
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="text-blue-600 bg-blue-50"
+                      >
+                        +3kg
+                      </Badge>
                     </div>
                     <div className="font-semibold">47 kg</div>
                   </div>
@@ -609,7 +767,9 @@ export default function CustomerDashboard() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold">My Waste Reports</h1>
-              <p className="text-neutral-dark">Manage your waste pickups and recycling</p>
+              <p className="text-neutral-dark">
+                Manage your waste pickups and recycling
+              </p>
             </div>
             <Button onClick={() => setIsSchedulePickupDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
@@ -656,16 +816,25 @@ export default function CustomerDashboard() {
                   <TableBody>
                     {wasteReports.map((report: any) => (
                       <TableRow key={report.id}>
-                        <TableCell className="font-medium">{report.title}</TableCell>
-                        <TableCell>{new Date(report.createdAt).toLocaleDateString()}</TableCell>
+                        <TableCell className="font-medium">
+                          {report.title}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(report.createdAt).toLocaleDateString()}
+                        </TableCell>
                         <TableCell>{report.location}</TableCell>
                         <TableCell>
-                          <Badge variant={
-                            report.status === 'completed' ? 'secondary' :
-                            report.status === 'in_progress' ? 'default' :
-                            report.status === 'scheduled' ? 'secondary' :
-                            'outline'
-                          }>
+                          <Badge
+                            variant={
+                              report.status === "completed"
+                                ? "secondary"
+                                : report.status === "in_progress"
+                                ? "default"
+                                : report.status === "scheduled"
+                                ? "secondary"
+                                : "outline"
+                            }
+                          >
                             {report.status}
                           </Badge>
                         </TableCell>
@@ -684,9 +853,12 @@ export default function CustomerDashboard() {
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
                     <Trash2 className="h-8 w-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-medium mb-1">No waste reports yet</h3>
+                  <h3 className="text-lg font-medium mb-1">
+                    No waste reports yet
+                  </h3>
                   <p className="text-sm text-gray-500 max-w-sm mx-auto mb-6">
-                    Start reporting waste for pickup and recycling to earn social points and help the environment.
+                    Start reporting waste for pickup and recycling to earn
+                    social points and help the environment.
                   </p>
                   <Button onClick={() => setIsSchedulePickupDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -704,12 +876,16 @@ export default function CustomerDashboard() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold">My Donations</h1>
-              <p className="text-neutral-dark">Manage your items for donation</p>
+              <p className="text-neutral-dark">
+                Manage your items for donation
+              </p>
             </div>
-            <Button onClick={() => setIsDonationDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              New Donation
-            </Button>
+            <Link href="/donate">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                New Donation
+              </Button>
+            </Link>
           </div>
 
           <Card>
@@ -751,16 +927,25 @@ export default function CustomerDashboard() {
                   <TableBody>
                     {donations.map((donation: any) => (
                       <TableRow key={donation.id}>
-                        <TableCell className="font-medium">{donation.itemName}</TableCell>
+                        <TableCell className="font-medium">
+                          {donation.itemName}
+                        </TableCell>
                         <TableCell>{donation.category}</TableCell>
-                        <TableCell>{new Date(donation.createdAt).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          <Badge variant={
-                            donation.status === 'completed' ? 'secondary' :
-                            donation.status === 'matched' ? 'default' :
-                            donation.status === 'requested' ? 'secondary' :
-                            'outline'
-                          }>
+                          {new Date(donation.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              donation.status === "completed"
+                                ? "secondary"
+                                : donation.status === "matched"
+                                ? "default"
+                                : donation.status === "requested"
+                                ? "secondary"
+                                : "outline"
+                            }
+                          >
                             {donation.status}
                           </Badge>
                         </TableCell>
@@ -781,7 +966,8 @@ export default function CustomerDashboard() {
                   </div>
                   <h3 className="text-lg font-medium mb-1">No donations yet</h3>
                   <p className="text-sm text-gray-500 max-w-sm mx-auto mb-6">
-                    Donate unused items to those in need. Your contributions can make a significant impact on someone's life.
+                    Donate unused items to those in need. Your contributions can
+                    make a significant impact on someone's life.
                   </p>
                   <Button onClick={() => setIsDonationDialogOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -799,7 +985,9 @@ export default function CustomerDashboard() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold">Community Events</h1>
-              <p className="text-neutral-dark">Join events and cleanup drives in your area</p>
+              <p className="text-neutral-dark">
+                Join events and cleanup drives in your area
+              </p>
             </div>
             <Select defaultValue="all">
               <SelectTrigger className="w-[180px]">
@@ -819,7 +1007,8 @@ export default function CustomerDashboard() {
               <CardHeader className="pb-2">
                 <CardTitle>Upcoming Events</CardTitle>
                 <CardDescription>
-                  Join local events, earn points, and make a difference in your community
+                  Join local events, earn points, and make a difference in your
+                  community
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -834,28 +1023,36 @@ export default function CustomerDashboard() {
                         <div className="flex justify-between items-start">
                           <div>
                             <h3 className="font-semibold">{event.title}</h3>
-                            <p className="text-sm text-gray-600 my-2">{event.description}</p>
+                            <p className="text-sm text-gray-600 my-2">
+                              {event.description}
+                            </p>
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3">
                               <div className="flex items-center text-sm text-gray-500">
                                 <CalendarClock className="h-4 w-4 mr-1" />
-                                <span>{new Date(event.date).toLocaleDateString()}</span>
+                                <span>
+                                  {new Date(event.date).toLocaleDateString()}
+                                </span>
                               </div>
                               <div className="flex items-center text-sm text-gray-500">
                                 <MapPin className="h-4 w-4 mr-1" />
                                 <span>{event.location.city}</span>
                               </div>
-                              <Badge variant={
-                                event.status === 'upcoming' ? 'outline' : 
-                                event.status === 'ongoing' ? 'default' : 
-                                'secondary'
-                              }>
+                              <Badge
+                                variant={
+                                  event.status === "upcoming"
+                                    ? "outline"
+                                    : event.status === "ongoing"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                              >
                                 {event.status}
                               </Badge>
                             </div>
                           </div>
-                          
-                          <Button 
-                            size="sm" 
+
+                          <Button
+                            size="sm"
                             onClick={() => handleJoinEvent(event.id)}
                             disabled={joinEventMutation.isPending}
                           >
@@ -864,7 +1061,9 @@ export default function CustomerDashboard() {
                                 <Loader2 className="h-4 w-4 mr-1 animate-spin" />
                                 Joining...
                               </>
-                            ) : "Join Event"}
+                            ) : (
+                              "Join Event"
+                            )}
                           </Button>
                         </div>
                       </div>
@@ -875,9 +1074,12 @@ export default function CustomerDashboard() {
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
                       <Calendar className="h-8 w-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-medium mb-1">No upcoming events</h3>
+                    <h3 className="text-lg font-medium mb-1">
+                      No upcoming events
+                    </h3>
                     <p className="text-sm text-gray-500 max-w-sm mx-auto mb-6">
-                      Check back later for community events, or contact an organization to suggest a new event.
+                      Check back later for community events, or contact an
+                      organization to suggest a new event.
                     </p>
                   </div>
                 )}
@@ -896,9 +1098,12 @@ export default function CustomerDashboard() {
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
                     <Users className="h-8 w-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-medium mb-1">You haven't joined any events yet</h3>
+                  <h3 className="text-lg font-medium mb-1">
+                    You haven't joined any events yet
+                  </h3>
                   <p className="text-sm text-gray-500 max-w-sm mx-auto mb-6">
-                    Participate in community events to earn points and make an impact!
+                    Participate in community events to earn points and make an
+                    impact!
                   </p>
                 </div>
               </CardContent>
@@ -912,14 +1117,16 @@ export default function CustomerDashboard() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold">Raise Issue</h1>
-              <p className="text-neutral-dark">Report environmental issues and illegal dumping</p>
+              <p className="text-neutral-dark">
+                Report environmental issues and illegal dumping
+              </p>
             </div>
             <Button onClick={() => setIsRaiseIssueDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               New Issue
             </Button>
           </div>
-          
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>Report an Issue</CardTitle>
@@ -958,16 +1165,25 @@ export default function CustomerDashboard() {
                   <TableBody>
                     {issues.map((issue: any) => (
                       <TableRow key={issue.id}>
-                        <TableCell className="font-medium">{issue.title}</TableCell>
+                        <TableCell className="font-medium">
+                          {issue.title}
+                        </TableCell>
                         <TableCell>{issue.issueType}</TableCell>
-                        <TableCell>{new Date(issue.createdAt).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          <Badge variant={
-                            issue.status === 'resolved' ? 'secondary' :
-                            issue.status === 'in_progress' ? 'default' :
-                            issue.isUrgent ? 'destructive' :
-                            'outline'
-                          }>
+                          {new Date(issue.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              issue.status === "resolved"
+                                ? "secondary"
+                                : issue.status === "in_progress"
+                                ? "default"
+                                : issue.isUrgent
+                                ? "destructive"
+                                : "outline"
+                            }
+                          >
                             {issue.status}
                           </Badge>
                         </TableCell>
@@ -986,9 +1202,12 @@ export default function CustomerDashboard() {
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
                     <AlertTriangle className="h-8 w-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-medium mb-1">No issues reported yet</h3>
+                  <h3 className="text-lg font-medium mb-1">
+                    No issues reported yet
+                  </h3>
                   <p className="text-sm text-gray-500 max-w-sm mx-auto">
-                    Help keep our environment clean by reporting waste management issues in your area.
+                    Help keep our environment clean by reporting waste
+                    management issues in your area.
                   </p>
                 </div>
               )}
@@ -1002,19 +1221,22 @@ export default function CustomerDashboard() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold">Request Community Help</h1>
-              <p className="text-neutral-dark">Ask for assistance with environmental initiatives</p>
+              <p className="text-neutral-dark">
+                Ask for assistance with environmental initiatives
+              </p>
             </div>
             <Button onClick={() => setIsSeekHelpDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               New Request
             </Button>
           </div>
-          
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>Seek Community Help</CardTitle>
               <CardDescription>
-                Request assistance for cleanup drives, recycling initiatives, and more
+                Request assistance for cleanup drives, recycling initiatives,
+                and more
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -1024,23 +1246,23 @@ export default function CustomerDashboard() {
         </div>
       );
     } else if (activeTab === "help-others") {
-      return (
-        <HelpRequestsList />
-      );
+      return <HelpRequestsList />;
     } else if (activeTab === "pickup-history") {
       return (
         <div className="space-y-6">
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold">Pickup History</h1>
-              <p className="text-neutral-dark">Track your past and upcoming waste pickups</p>
+              <p className="text-neutral-dark">
+                Track your past and upcoming waste pickups
+              </p>
             </div>
             <Button onClick={() => setIsSchedulePickupDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Schedule Pickup
             </Button>
           </div>
-          
+
           <Tabs defaultValue="upcoming">
             <TabsList>
               <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
@@ -1057,48 +1279,77 @@ export default function CustomerDashboard() {
                     <div className="flex justify-center py-6">
                       <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     </div>
-                  ) : wasteReports && wasteReports.filter((r: any) => ['pending', 'scheduled'].includes(r.status)).length > 0 ? (
+                  ) : wasteReports &&
+                    wasteReports.filter((r: any) =>
+                      ["pending", "scheduled"].includes(r.status)
+                    ).length > 0 ? (
                     <div className="space-y-4">
                       {wasteReports
-                        .filter((r: any) => ['pending', 'scheduled'].includes(r.status))
+                        .filter((r: any) =>
+                          ["pending", "scheduled"].includes(r.status)
+                        )
                         .map((report: any) => (
-                          <div key={report.id} className="border rounded-lg p-4">
+                          <div
+                            key={report.id}
+                            className="border rounded-lg p-4"
+                          >
                             <div className="flex justify-between items-start mb-2">
                               <h3 className="font-semibold">{report.title}</h3>
-                              <Badge variant={
-                                report.status === 'scheduled' ? 'secondary' : 'outline'
-                              }>
+                              <Badge
+                                variant={
+                                  report.status === "scheduled"
+                                    ? "secondary"
+                                    : "outline"
+                                }
+                              >
                                 {report.status}
                               </Badge>
                             </div>
                             <div className="grid grid-cols-2 gap-4 mt-2">
                               <div>
-                                <p className="text-sm font-medium text-gray-500">Pickup Date</p>
+                                <p className="text-sm font-medium text-gray-500">
+                                  Pickup Date
+                                </p>
                                 <p className="mt-1">
-                                  {report.scheduledDate ? new Date(report.scheduledDate).toLocaleDateString() : 'Not scheduled yet'}
+                                  {report.scheduledDate
+                                    ? new Date(
+                                        report.scheduledDate
+                                      ).toLocaleDateString()
+                                    : "Not scheduled yet"}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-gray-500">Location</p>
-                                <p className="mt-1 text-sm">{report.location}</p>
+                                <p className="text-sm font-medium text-gray-500">
+                                  Location
+                                </p>
+                                <p className="mt-1 text-sm">
+                                  {report.location}
+                                </p>
                               </div>
                             </div>
                             <div className="flex justify-end mt-4">
-                              <Button variant="outline" size="sm">View Details</Button>
+                              <Button variant="outline" size="sm">
+                                View Details
+                              </Button>
                             </div>
                           </div>
-                      ))}
+                        ))}
                     </div>
                   ) : (
                     <div className="text-center py-8">
                       <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
                         <Calendar className="h-8 w-8 text-gray-400" />
                       </div>
-                      <h3 className="text-lg font-medium mb-1">No upcoming pickups</h3>
+                      <h3 className="text-lg font-medium mb-1">
+                        No upcoming pickups
+                      </h3>
                       <p className="text-sm text-gray-500 max-w-sm mx-auto mb-6">
-                        Schedule a pickup to have your waste collected and recycled properly.
+                        Schedule a pickup to have your waste collected and
+                        recycled properly.
                       </p>
-                      <Button onClick={() => setIsSchedulePickupDialogOpen(true)}>
+                      <Button
+                        onClick={() => setIsSchedulePickupDialogOpen(true)}
+                      >
                         Schedule Pickup
                       </Button>
                     </div>
@@ -1116,40 +1367,61 @@ export default function CustomerDashboard() {
                     <div className="flex justify-center py-6">
                       <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     </div>
-                  ) : wasteReports && wasteReports.filter((r: any) => r.status === 'completed').length > 0 ? (
+                  ) : wasteReports &&
+                    wasteReports.filter((r: any) => r.status === "completed")
+                      .length > 0 ? (
                     <div className="space-y-4">
                       {wasteReports
-                        .filter((r: any) => r.status === 'completed')
+                        .filter((r: any) => r.status === "completed")
                         .map((report: any) => (
-                          <div key={report.id} className="border rounded-lg p-4">
+                          <div
+                            key={report.id}
+                            className="border rounded-lg p-4"
+                          >
                             <div className="flex justify-between items-start mb-2">
                               <h3 className="font-semibold">{report.title}</h3>
                               <Badge variant="secondary">Completed</Badge>
                             </div>
                             <div className="grid grid-cols-2 gap-4 mt-2">
                               <div>
-                                <p className="text-sm font-medium text-gray-500">Pickup Date</p>
+                                <p className="text-sm font-medium text-gray-500">
+                                  Pickup Date
+                                </p>
                                 <p className="mt-1">
-                                  {report.completedDate ? new Date(report.completedDate).toLocaleDateString() : new Date(report.createdAt).toLocaleDateString()}
+                                  {report.completedDate
+                                    ? new Date(
+                                        report.completedDate
+                                      ).toLocaleDateString()
+                                    : new Date(
+                                        report.createdAt
+                                      ).toLocaleDateString()}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-gray-500">Location</p>
-                                <p className="mt-1 text-sm">{report.location}</p>
+                                <p className="text-sm font-medium text-gray-500">
+                                  Location
+                                </p>
+                                <p className="mt-1 text-sm">
+                                  {report.location}
+                                </p>
                               </div>
                             </div>
                             <div className="flex justify-end mt-4">
-                              <Button variant="outline" size="sm">View Details</Button>
+                              <Button variant="outline" size="sm">
+                                View Details
+                              </Button>
                             </div>
                           </div>
-                      ))}
+                        ))}
                     </div>
                   ) : (
                     <div className="text-center py-8">
                       <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
                         <Check className="h-8 w-8 text-gray-400" />
                       </div>
-                      <h3 className="text-lg font-medium mb-1">No completed pickups</h3>
+                      <h3 className="text-lg font-medium mb-1">
+                        No completed pickups
+                      </h3>
                       <p className="text-sm text-gray-500 max-w-sm mx-auto">
                         Your completed pickups will appear here.
                       </p>
@@ -1168,7 +1440,9 @@ export default function CustomerDashboard() {
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
                       <AlertCircle className="h-8 w-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-medium mb-1">No cancelled pickups</h3>
+                    <h3 className="text-lg font-medium mb-1">
+                      No cancelled pickups
+                    </h3>
                     <p className="text-sm text-gray-500 max-w-sm mx-auto">
                       Your cancelled pickups will appear here.
                     </p>
@@ -1180,23 +1454,23 @@ export default function CustomerDashboard() {
         </div>
       );
     } else if (activeTab === "leaderboard") {
-      return (
-        <Leaderboard />
-      );
+      return <Leaderboard />;
     } else if (activeTab === "give-feedback") {
       return (
         <div className="space-y-6">
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold">Give Feedback</h1>
-              <p className="text-neutral-dark">Share your experience and help us improve</p>
+              <p className="text-neutral-dark">
+                Share your experience and help us improve
+              </p>
             </div>
             <Button onClick={() => setIsFeedbackDialogOpen(true)}>
               <MessageSquare className="h-4 w-4 mr-2" />
               New Feedback
             </Button>
           </div>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Your Feedback</CardTitle>
@@ -1206,26 +1480,44 @@ export default function CustomerDashboard() {
             </CardHeader>
             <CardContent>
               <Form {...feedbackForm}>
-                <form onSubmit={feedbackForm.handleSubmit(onFeedbackSubmit)} className="space-y-6">
+                <form
+                  onSubmit={feedbackForm.handleSubmit(onFeedbackSubmit)}
+                  className="space-y-6"
+                >
                   <FormField
                     control={feedbackForm.control}
                     name="feedbackType"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Feedback Type</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select feedback type" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="general">General Feedback</SelectItem>
-                            <SelectItem value="pickup">Pickup Service</SelectItem>
-                            <SelectItem value="donation">Donation System</SelectItem>
-                            <SelectItem value="issue">Issue Reporting</SelectItem>
-                            <SelectItem value="events">Community Events</SelectItem>
-                            <SelectItem value="app">Application Experience</SelectItem>
+                            <SelectItem value="general">
+                              General Feedback
+                            </SelectItem>
+                            <SelectItem value="pickup">
+                              Pickup Service
+                            </SelectItem>
+                            <SelectItem value="donation">
+                              Donation System
+                            </SelectItem>
+                            <SelectItem value="issue">
+                              Issue Reporting
+                            </SelectItem>
+                            <SelectItem value="events">
+                              Community Events
+                            </SelectItem>
+                            <SelectItem value="app">
+                              Application Experience
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -1239,17 +1531,24 @@ export default function CustomerDashboard() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Rating</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Rate your experience" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="5">Excellent ⭐⭐⭐⭐⭐</SelectItem>
+                            <SelectItem value="5">
+                              Excellent ⭐⭐⭐⭐⭐
+                            </SelectItem>
                             <SelectItem value="4">Good ⭐⭐⭐⭐</SelectItem>
                             <SelectItem value="3">Average ⭐⭐⭐</SelectItem>
-                            <SelectItem value="2">Below Average ⭐⭐</SelectItem>
+                            <SelectItem value="2">
+                              Below Average ⭐⭐
+                            </SelectItem>
                             <SelectItem value="1">Poor ⭐</SelectItem>
                           </SelectContent>
                         </Select>
@@ -1265,22 +1564,23 @@ export default function CustomerDashboard() {
                       <FormItem>
                         <FormLabel>Comments</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="Please share your thoughts, suggestions, or concerns..." 
-                            className="min-h-[150px]" 
-                            {...field} 
+                          <Textarea
+                            placeholder="Please share your thoughts, suggestions, or concerns..."
+                            className="min-h-[150px]"
+                            {...field}
                           />
                         </FormControl>
                         <FormDescription>
-                          Your feedback helps us improve our services and user experience.
+                          Your feedback helps us improve our services and user
+                          experience.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     disabled={submitFeedbackMutation.isPending}
                   >
                     {submitFeedbackMutation.isPending ? (
@@ -1288,7 +1588,9 @@ export default function CustomerDashboard() {
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Submitting...
                       </>
-                    ) : "Submit Feedback"}
+                    ) : (
+                      "Submit Feedback"
+                    )}
                   </Button>
                 </form>
               </Form>
@@ -1297,7 +1599,7 @@ export default function CustomerDashboard() {
         </div>
       );
     }
-    
+
     return null;
   };
 
@@ -1309,24 +1611,29 @@ export default function CustomerDashboard() {
           <div className="grid md:grid-cols-12 gap-6">
             {/* Sidebar */}
             <div className="md:col-span-3">
-              <DashboardNav role="customer" activeItem={activeTab} setActiveItem={setActiveTab} />
-              
-              <SocialPointsCard 
+              <DashboardNav
+                role="customer"
+                activeItem={activeTab}
+                setActiveItem={setActiveTab}
+              />
+
+              <SocialPointsCard
                 points={user?.socialPoints || 0}
-                badges={['Beginner', 'Waste Warrior']}
+                badges={["Beginner", "Waste Warrior"]}
               />
             </div>
 
             {/* Main Content */}
-            <div className="md:col-span-9">
-              {renderContent()}
-            </div>
+            <div className="md:col-span-9">{renderContent()}</div>
           </div>
         </div>
       </main>
-      
+
       {/* Schedule Pickup Dialog */}
-      <Dialog open={isSchedulePickupDialogOpen} onOpenChange={setIsSchedulePickupDialogOpen}>
+      <Dialog
+        open={isSchedulePickupDialogOpen}
+        onOpenChange={setIsSchedulePickupDialogOpen}
+      >
         <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Schedule Waste Pickup</DialogTitle>
@@ -1336,7 +1643,10 @@ export default function CustomerDashboard() {
       </Dialog>
 
       {/* Donation Dialog */}
-      <Dialog open={isDonationDialogOpen} onOpenChange={setIsDonationDialogOpen}>
+      <Dialog
+        open={isDonationDialogOpen}
+        onOpenChange={setIsDonationDialogOpen}
+      >
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle>Donate an Item</DialogTitle>
@@ -1346,7 +1656,10 @@ export default function CustomerDashboard() {
       </Dialog>
 
       {/* Raise Issue Dialog */}
-      <Dialog open={isRaiseIssueDialogOpen} onOpenChange={setIsRaiseIssueDialogOpen}>
+      <Dialog
+        open={isRaiseIssueDialogOpen}
+        onOpenChange={setIsRaiseIssueDialogOpen}
+      >
         <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Raise an Issue</DialogTitle>
@@ -1356,7 +1669,10 @@ export default function CustomerDashboard() {
       </Dialog>
 
       {/* Seek Help Dialog */}
-      <Dialog open={isSeekHelpDialogOpen} onOpenChange={setIsSeekHelpDialogOpen}>
+      <Dialog
+        open={isSeekHelpDialogOpen}
+        onOpenChange={setIsSeekHelpDialogOpen}
+      >
         <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Request Community Help</DialogTitle>
@@ -1366,32 +1682,47 @@ export default function CustomerDashboard() {
       </Dialog>
 
       {/* Feedback Dialog */}
-      <Dialog open={isFeedbackDialogOpen} onOpenChange={setIsFeedbackDialogOpen}>
+      <Dialog
+        open={isFeedbackDialogOpen}
+        onOpenChange={setIsFeedbackDialogOpen}
+      >
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle>Give Feedback</DialogTitle>
           </DialogHeader>
           <Form {...feedbackForm}>
-            <form onSubmit={feedbackForm.handleSubmit(onFeedbackSubmit)} className="space-y-6">
+            <form
+              onSubmit={feedbackForm.handleSubmit(onFeedbackSubmit)}
+              className="space-y-6"
+            >
               <FormField
                 control={feedbackForm.control}
                 name="feedbackType"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Feedback Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select feedback type" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="general">General Feedback</SelectItem>
+                        <SelectItem value="general">
+                          General Feedback
+                        </SelectItem>
                         <SelectItem value="pickup">Pickup Service</SelectItem>
-                        <SelectItem value="donation">Donation System</SelectItem>
+                        <SelectItem value="donation">
+                          Donation System
+                        </SelectItem>
                         <SelectItem value="issue">Issue Reporting</SelectItem>
                         <SelectItem value="events">Community Events</SelectItem>
-                        <SelectItem value="app">Application Experience</SelectItem>
+                        <SelectItem value="app">
+                          Application Experience
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -1405,7 +1736,10 @@ export default function CustomerDashboard() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Rating</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Rate your experience" />
@@ -1431,10 +1765,10 @@ export default function CustomerDashboard() {
                   <FormItem>
                     <FormLabel>Comments</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Please share your thoughts, suggestions, or concerns..." 
-                        className="min-h-[120px]" 
-                        {...field} 
+                      <Textarea
+                        placeholder="Please share your thoughts, suggestions, or concerns..."
+                        className="min-h-[120px]"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -1450,8 +1784,8 @@ export default function CustomerDashboard() {
                 >
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={submitFeedbackMutation.isPending}
                 >
                   {submitFeedbackMutation.isPending ? (
@@ -1459,14 +1793,16 @@ export default function CustomerDashboard() {
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Submitting...
                     </>
-                  ) : "Submit Feedback"}
+                  ) : (
+                    "Submit Feedback"
+                  )}
                 </Button>
               </DialogFooter>
             </form>
           </Form>
         </DialogContent>
       </Dialog>
-      
+
       <Footer />
     </div>
   );

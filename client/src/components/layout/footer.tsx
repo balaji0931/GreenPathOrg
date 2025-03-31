@@ -193,7 +193,7 @@ export function Footer() {
                 <Input
                   type="email"
                   placeholder="Your email"
-                  className="rounded-r-none text-neutral-darker focus:outline-none"
+                  className="rounded-r-none text-black focus:outline-none"
                 />
                 <Button
                   type="submit"

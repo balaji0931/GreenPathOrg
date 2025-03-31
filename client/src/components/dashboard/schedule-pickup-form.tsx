@@ -32,7 +32,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { format } from "date-fns";
 
 const pickupSchema = z.object({
@@ -79,25 +83,29 @@ export function SchedulePickupForm() {
       // Convert form data to match the expected schema
       const formData = {
         title: `Waste Pickup - ${data.wasteType}`,
-        description: data.description || `Pickup request for ${data.quantity}kg of ${data.wasteType} waste`,
-        location: { 
-          basicAddress: data.address, 
+        userId: user?.id,
+        description:
+          data.description ||
+          `Pickup request for ${data.quantity}kg of ${data.wasteType} waste`,
+        location: {
+          basicAddress: data.address,
           city: "City",
-          pinCode: "000000" 
+          pinCode: "000000",
         },
         status: "pending",
         isSegregated: data.isSegregated === "yes",
         scheduledDate: data.date,
-        images: []
+        images: [],
       };
-      
+
       const response = await apiRequest("POST", "/api/waste-reports", formData);
       return response.json();
     },
     onSuccess: () => {
       toast({
         title: "Pickup scheduled successfully",
-        description: "Thank you for scheduling a pickup. A dealer will contact you shortly.",
+        description:
+          "Thank you for scheduling a pickup. A dealer will contact you shortly.",
       });
       form.reset();
       setDate(undefined);
@@ -120,9 +128,11 @@ export function SchedulePickupForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="bg-green-50 p-4 rounded-lg mb-6">
-          <h2 className="text-xl font-bold text-center mb-4">Place Your Order</h2>
+          <h2 className="text-xl font-bold text-center mb-4">
+            Place Your Order
+          </h2>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <FormField
@@ -146,7 +156,11 @@ export function SchedulePickupForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your email address" type="email" {...field} />
+                    <Input
+                      placeholder="Enter your email address"
+                      type="email"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -160,7 +174,10 @@ export function SchedulePickupForm() {
                 <FormItem>
                   <FormLabel>Address</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Enter your complete address for pickup" {...field} />
+                    <Textarea
+                      placeholder="Enter your complete address for pickup"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -187,22 +204,34 @@ export function SchedulePickupForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Select Type of Waste</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select waste type" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="multi_layered_plastic">Multi Layered Plastic</SelectItem>
-                      <SelectItem value="electronic_waste">Electronic Waste</SelectItem>
+                      <SelectItem value="multi_layered_plastic">
+                        Multi Layered Plastic
+                      </SelectItem>
+                      <SelectItem value="electronic_waste">
+                        Electronic Waste
+                      </SelectItem>
                       <SelectItem value="glass">Glass</SelectItem>
-                      <SelectItem value="paper_cardboard">Paper/Cardboard</SelectItem>
+                      <SelectItem value="paper_cardboard">
+                        Paper/Cardboard
+                      </SelectItem>
                       <SelectItem value="metal">Metal</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    Have Bio-degradable waste, Don't know how to Manage? <a href="#" className="text-primary underline">Click Here</a>
+                    Have Bio-degradable waste, Don't know how to Manage?{" "}
+                    <a href="#" className="text-primary underline">
+                      Click Here
+                    </a>
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -216,7 +245,12 @@ export function SchedulePickupForm() {
                 <FormItem>
                   <FormLabel>Quantity in Kgs</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter quantity" type="number" min="1" {...field} />
+                    <Input
+                      placeholder="Enter quantity"
+                      type="number"
+                      min="1"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -237,7 +271,10 @@ export function SchedulePickupForm() {
                   <div className="space-y-1 leading-none">
                     <FormLabel>Have in Bulk?</FormLabel>
                     <FormDescription>
-                      <a href="#" className="text-primary underline">Click Here</a> to contact us for bulk pickups
+                      <a href="#" className="text-primary underline">
+                        Click Here
+                      </a>{" "}
+                      to contact us for bulk pickups
                     </FormDescription>
                   </div>
                 </FormItem>
@@ -253,8 +290,8 @@ export function SchedulePickupForm() {
                 <FormItem className="space-y-3">
                   <FormLabel>Is waste separated and packed?</FormLabel>
                   <FormControl>
-                    <RadioGroup 
-                      onValueChange={field.onChange} 
+                    <RadioGroup
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                       className="flex space-x-4"
                     >
@@ -280,9 +317,9 @@ export function SchedulePickupForm() {
                 <FormItem>
                   <FormLabel>Description (Optional)</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Add any additional details about your waste" 
-                      {...field} 
+                    <Textarea
+                      placeholder="Add any additional details about your waste"
+                      {...field}
                     />
                   </FormControl>
                 </FormItem>
@@ -325,8 +362,10 @@ export function SchedulePickupForm() {
                         }}
                         disabled={(date) => {
                           // Disable past dates and Sundays
-                          return date < new Date(new Date().setHours(0, 0, 0, 0)) || 
-                                 date.getDay() === 0;
+                          return (
+                            date < new Date(new Date().setHours(0, 0, 0, 0)) ||
+                            date.getDay() === 0
+                          );
                         }}
                         initialFocus
                       />
@@ -346,19 +385,34 @@ export function SchedulePickupForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Select Slot</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a time slot" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="8:00 AM - 10:00 AM">8:00 AM - 10:00 AM</SelectItem>
-                      <SelectItem value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</SelectItem>
-                      <SelectItem value="12:00 PM - 2:00 PM">12:00 PM - 2:00 PM</SelectItem>
-                      <SelectItem value="2:00 PM - 4:00 PM">2:00 PM - 4:00 PM</SelectItem>
-                      <SelectItem value="4:00 PM - 6:00 PM">4:00 PM - 6:00 PM</SelectItem>
-                      <SelectItem value="6:00 PM - 8:00 PM">6:00 PM - 8:00 PM</SelectItem>
+                      <SelectItem value="8:00 AM - 10:00 AM">
+                        8:00 AM - 10:00 AM
+                      </SelectItem>
+                      <SelectItem value="10:00 AM - 12:00 PM">
+                        10:00 AM - 12:00 PM
+                      </SelectItem>
+                      <SelectItem value="12:00 PM - 2:00 PM">
+                        12:00 PM - 2:00 PM
+                      </SelectItem>
+                      <SelectItem value="2:00 PM - 4:00 PM">
+                        2:00 PM - 4:00 PM
+                      </SelectItem>
+                      <SelectItem value="4:00 PM - 6:00 PM">
+                        4:00 PM - 6:00 PM
+                      </SelectItem>
+                      <SelectItem value="6:00 PM - 8:00 PM">
+                        6:00 PM - 8:00 PM
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -368,8 +422,8 @@ export function SchedulePickupForm() {
           </div>
         </div>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full bg-green-600 hover:bg-green-700 text-lg py-6"
           disabled={schedulePickupMutation.isPending}
         >
@@ -378,13 +432,19 @@ export function SchedulePickupForm() {
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               Processing...
             </>
-          ) : "Place Order and Save Earth"}
+          ) : (
+            "Place Order and Save Earth"
+          )}
         </Button>
 
         <div className="text-center mt-4 space-y-2">
           <p className="text-sm text-gray-500">Have unused furniture/toys?</p>
           <p className="text-sm text-gray-500">Want to help people in need?</p>
-          <Button variant="outline" className="mt-2" onClick={() => document.location.href = '/donate'}>
+          <Button
+            variant="outline"
+            className="mt-2"
+            onClick={() => (document.location.href = "/donate")}
+          >
             Donate
           </Button>
         </div>

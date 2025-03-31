@@ -49,10 +49,10 @@ export function DonationImpact() {
           </div>
           <div className="hidden md:block bg-[#F5F5F5] relative h-full">
             <div className="grid grid-cols-2 gap-2 p-4 h-full">
-              <div className="rounded bg-[url('/')] h-60" />
-              <div className="rounded bg-[url('/')] h-40 mt-4" />
-              <div className="rounded bg-[url('/')] h-40" />
-              <div className="rounded bg-[url('/')] h-60 -mt-16" />
+              <div className="rounded bg-[url('/donation1.jpeg')] h-60" />
+              <div className="rounded bg-[url('/donation2.jpeg')] h-40 mt-4" />
+              <div className="rounded bg-[url('/donation3.jpeg')] h-40" />
+              <div className="rounded bg-[url('/donation4.jpeg')] h-60 -mt-16" />
             </div>
           </div>
         </div>

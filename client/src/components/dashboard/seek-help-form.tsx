@@ -28,13 +28,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 
 const helpRequestSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long"),
-  description: z.string().min(10, "Please provide more details about what help you need"),
+  description: z
+    .string()
+    .min(10, "Please provide more details about what help you need"),
   helpType: z.string().min(1, "Please select a help type"),
   location: z.object({
     address: z.string().min(5, "Address is required"),
@@ -44,7 +50,9 @@ const helpRequestSchema = z.object({
   date: z.date({
     required_error: "Please select a date",
   }),
-  maxParticipants: z.string().min(1, "Please enter the maximum number of participants needed"),
+  maxParticipants: z
+    .string()
+    .min(1, "Please enter the maximum number of participants needed"),
   skills: z.array(z.string()).optional(),
   isUrgent: z.boolean().default(false),
 });
@@ -94,20 +102,25 @@ export function SeekHelpForm() {
         description: data.description,
         helpType: data.helpType,
         location: data.location,
-        scheduledDate: data.date.toISOString(),
+        scheduledDate: new Date(data.date).toISOString,
         maxParticipants: parseInt(data.maxParticipants),
         skills: data.skills || [],
         isUrgent: data.isUrgent,
         status: "pending",
       };
-      
-      const response = await apiRequest("POST", "/api/help-requests", requestData);
+
+      const response = await apiRequest(
+        "POST",
+        "/api/help-requests",
+        requestData
+      );
       return response.json();
     },
     onSuccess: () => {
       toast({
         title: "Help request created successfully",
-        description: "Your request has been posted. We'll notify you when people volunteer to help.",
+        description:
+          "Your request has been posted. We'll notify you when people volunteer to help.",
       });
       form.reset();
       setSelectedSkills([]);
@@ -125,16 +138,16 @@ export function SeekHelpForm() {
   const handleSkillToggle = (skill: string) => {
     setSelectedSkills((prevSkills) => {
       const newSkills = prevSkills.includes(skill)
-        ? prevSkills.filter(s => s !== skill)
+        ? prevSkills.filter((s) => s !== skill)
         : [...prevSkills, skill];
-      
+
       // Update the form field value
-      form.setValue("skills", newSkills, { 
+      form.setValue("skills", newSkills, {
         shouldValidate: true,
         shouldDirty: true,
-        shouldTouch: true
+        shouldTouch: true,
       });
-      
+
       return newSkills;
     });
   };
@@ -147,7 +160,7 @@ export function SeekHelpForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           <div className="space-y-6">
             <FormField
               control={form.control}
@@ -156,7 +169,10 @@ export function SeekHelpForm() {
                 <FormItem>
                   <FormLabel>Request Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="E.g., Community Cleanup at Main Street Park" {...field} />
+                    <Input
+                      placeholder="E.g., Community Cleanup at Main Street Park"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -169,7 +185,10 @@ export function SeekHelpForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Type of Help Needed</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select help type" />
@@ -177,11 +196,21 @@ export function SeekHelpForm() {
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="cleanup">Community Cleanup</SelectItem>
-                      <SelectItem value="waste_collection">Waste Collection</SelectItem>
-                      <SelectItem value="awareness_campaign">Awareness Campaign</SelectItem>
-                      <SelectItem value="education">Educational Workshop</SelectItem>
-                      <SelectItem value="recycling">Recycling Initiative</SelectItem>
-                      <SelectItem value="transport">Transportation Help</SelectItem>
+                      <SelectItem value="waste_collection">
+                        Waste Collection
+                      </SelectItem>
+                      <SelectItem value="awareness_campaign">
+                        Awareness Campaign
+                      </SelectItem>
+                      <SelectItem value="education">
+                        Educational Workshop
+                      </SelectItem>
+                      <SelectItem value="recycling">
+                        Recycling Initiative
+                      </SelectItem>
+                      <SelectItem value="transport">
+                        Transportation Help
+                      </SelectItem>
                       <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
@@ -208,7 +237,7 @@ export function SeekHelpForm() {
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -223,7 +252,7 @@ export function SeekHelpForm() {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="location.pinCode"
@@ -272,15 +301,15 @@ export function SeekHelpForm() {
                         onSelect={field.onChange}
                         disabled={(date) => {
                           // Disable past dates
-                          return date < new Date(new Date().setHours(0, 0, 0, 0));
+                          return (
+                            date < new Date(new Date().setHours(0, 0, 0, 0))
+                          );
                         }}
                         initialFocus
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormDescription>
-                    When do you need help?
-                  </FormDescription>
+                  <FormDescription>When do you need help?</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -294,7 +323,12 @@ export function SeekHelpForm() {
                   <FormLabel>Maximum Participants Needed</FormLabel>
                   <div className="relative">
                     <FormControl>
-                      <Input placeholder="Number of volunteers needed" type="number" min="1" {...field} />
+                      <Input
+                        placeholder="Number of volunteers needed"
+                        type="number"
+                        min="1"
+                        {...field}
+                      />
                     </FormControl>
                     <Users className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   </div>
@@ -315,10 +349,10 @@ export function SeekHelpForm() {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Describe what help you need and any additional information volunteers should know." 
-                      className="min-h-[150px]" 
-                      {...field} 
+                    <Textarea
+                      placeholder="Describe what help you need and any additional information volunteers should know."
+                      className="min-h-[150px]"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -326,7 +360,7 @@ export function SeekHelpForm() {
               )}
             />
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name="skills"
               render={() => (
@@ -337,29 +371,34 @@ export function SeekHelpForm() {
                   </FormDescription>
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     {skillsList.map((skill) => (
-                      <div 
+                      <div
                         key={skill}
                         className={`border rounded-md p-2 cursor-pointer transition-colors ${
-                          selectedSkills.includes(skill) 
-                            ? 'bg-primary/10 border-primary' 
-                            : 'hover:bg-gray-100'
+                          selectedSkills.includes(skill)
+                            ? "bg-primary/10 border-primary"
+                            : "hover:bg-gray-100"
                         }`}
                         onClick={() => handleSkillToggle(skill)}
                       >
                         <div className="flex items-center space-x-2">
-                          <Checkbox 
+                          <Checkbox
                             checked={selectedSkills.includes(skill)}
                             onCheckedChange={() => handleSkillToggle(skill)}
                             id={`skill-${skill}`}
                           />
-                          <label htmlFor={`skill-${skill}`} className="text-sm cursor-pointer">{skill}</label>
+                          <label
+                            htmlFor={`skill-${skill}`}
+                            className="text-sm cursor-pointer"
+                          >
+                            {skill}
+                          </label>
                         </div>
                       </div>
                     ))}
                   </div>
                 </FormItem>
               )}
-            />
+            /> */}
 
             <FormField
               control={form.control}
@@ -375,7 +414,8 @@ export function SeekHelpForm() {
                   <div className="space-y-1 leading-none">
                     <FormLabel>Mark as urgent</FormLabel>
                     <FormDescription>
-                      Urgent requests will be highlighted and sent as notifications to users
+                      Urgent requests will be highlighted and sent as
+                      notifications to users
                     </FormDescription>
                   </div>
                 </FormItem>
@@ -384,8 +424,8 @@ export function SeekHelpForm() {
           </div>
         </div>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full md:w-auto"
           disabled={createHelpRequestMutation.isPending}
         >
@@ -394,7 +434,9 @@ export function SeekHelpForm() {
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Submitting...
             </>
-          ) : "Post Help Request"}
+          ) : (
+            "Post Help Request"
+          )}
         </Button>
       </form>
     </Form>

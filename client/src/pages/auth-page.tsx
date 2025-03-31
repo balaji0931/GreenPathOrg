@@ -5,7 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,27 +22,37 @@ import { insertUserSchema, addressSchema } from "@shared/schema";
 import { Loader2, UserCircle2, Leaf } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 // Extended schema for client-side validation
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
 });
 
-const passwordRequirements = z.string()
+const passwordRequirements = z
+  .string()
   .min(8, "Password must be at least 8 characters")
   .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
   .regex(/[0-9]/, "Password must contain at least one number")
-  .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character");
+  .regex(
+    /[^A-Za-z0-9]/,
+    "Password must contain at least one special character"
+  );
 
-const registerSchema = insertUserSchema.extend({
-  password: passwordRequirements,
-  confirmPassword: z.string().min(1, "Please confirm your password"),
-  address: addressSchema,
-}).refine(data => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const registerSchema = insertUserSchema
+  .extend({
+    password: passwordRequirements,
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+    address: addressSchema,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
@@ -86,18 +103,17 @@ export default function AuthPage() {
     loginMutation.mutate(data);
   };
 
-
   const [verifyingEmail, setVerifyingEmail] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState("");
 
   const verifyEmail = async (email: string) => {
     try {
-      const response = await fetch('/api/verify-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+      const response = await fetch("/api/verify-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
@@ -112,17 +128,17 @@ export default function AuthPage() {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const verifyOtp = async (email: string, otp: string) => {
     try {
-      const response = await fetch('/api/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp })
+      const response = await fetch("/api/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
       });
 
       const data = await response.json();
@@ -137,7 +153,7 @@ export default function AuthPage() {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -147,7 +163,7 @@ export default function AuthPage() {
       toast({
         title: "Error",
         description: "Please verify your email first",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -175,7 +191,11 @@ export default function AuthPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="mt-2">
+                  <Tabs
+                    defaultValue={activeTab}
+                    onValueChange={setActiveTab}
+                    className="mt-2"
+                  >
                     <TabsList className="grid grid-cols-2 mb-6">
                       <TabsTrigger value="login">Login</TabsTrigger>
                       <TabsTrigger value="register">Register</TabsTrigger>
@@ -215,13 +235,16 @@ export default function AuthPage() {
                           </div>
 
                           <div className="text-right">
-                            <a href="#" className="text-sm text-primary hover:underline">
+                            <a
+                              href="#"
+                              className="text-sm text-primary hover:underline"
+                            >
                               Forgot password?
                             </a>
                           </div>
 
-                          <Button 
-                            type="submit" 
+                          <Button
+                            type="submit"
                             className="w-full"
                             disabled={loginMutation.isPending}
                           >
@@ -240,7 +263,9 @@ export default function AuthPage() {
 
                     {/* Register Tab */}
                     <TabsContent value="register">
-                      <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)}>
+                      <form
+                        onSubmit={registerForm.handleSubmit(onRegisterSubmit)}
+                      >
                         <div className="space-y-4">
                           <div className="space-y-2">
                             <Label htmlFor="fullName">Full Name</Label>
@@ -256,7 +281,7 @@ export default function AuthPage() {
                             )}
                           </div>
 
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 gap-4">
                             <div className="space-y-2">
                               <Label htmlFor="email">Email</Label>
                               <div className="flex gap-2">
@@ -268,9 +293,13 @@ export default function AuthPage() {
                                   disabled={emailVerified}
                                 />
                                 {!emailVerified && !otpSent && (
-                                  <Button 
+                                  <Button
                                     type="button"
-                                    onClick={() => verifyEmail(registerForm.getValues("email"))}
+                                    onClick={() =>
+                                      verifyEmail(
+                                        registerForm.getValues("email")
+                                      )
+                                    }
                                   >
                                     Verify
                                   </Button>
@@ -299,9 +328,14 @@ export default function AuthPage() {
                                         <InputOTPSlot index={5} />
                                       </InputOTPGroup>
                                     </InputOTP>
-                                    <Button 
+                                    <Button
                                       type="button"
-                                      onClick={() => verifyOtp(registerForm.getValues("email"), otp)}
+                                      onClick={() =>
+                                        verifyOtp(
+                                          registerForm.getValues("email"),
+                                          otp
+                                        )
+                                      }
                                     >
                                       Verify OTP
                                     </Button>
@@ -350,22 +384,31 @@ export default function AuthPage() {
                               />
                               {registerForm.formState.errors.password && (
                                 <p className="text-sm text-red-500">
-                                  {registerForm.formState.errors.password.message}
+                                  {
+                                    registerForm.formState.errors.password
+                                      .message
+                                  }
                                 </p>
                               )}
                             </div>
 
                             <div className="space-y-2">
-                              <Label htmlFor="confirmPassword">Confirm Password</Label>
+                              <Label htmlFor="confirmPassword">
+                                Confirm Password
+                              </Label>
                               <Input
                                 id="confirmPassword"
                                 type="password"
                                 placeholder="Confirm your password"
                                 {...registerForm.register("confirmPassword")}
                               />
-                              {registerForm.formState.errors.confirmPassword && (
+                              {registerForm.formState.errors
+                                .confirmPassword && (
                                 <p className="text-sm text-red-500">
-                                  {registerForm.formState.errors.confirmPassword.message}
+                                  {
+                                    registerForm.formState.errors
+                                      .confirmPassword.message
+                                  }
                                 </p>
                               )}
                             </div>
@@ -377,11 +420,17 @@ export default function AuthPage() {
                               <div className="col-span-2">
                                 <Input
                                   placeholder="House number, street name"
-                                  {...registerForm.register("address.basicAddress")}
+                                  {...registerForm.register(
+                                    "address.basicAddress"
+                                  )}
                                 />
-                                {registerForm.formState.errors.address?.basicAddress && (
+                                {registerForm.formState.errors.address
+                                  ?.basicAddress && (
                                   <p className="text-sm text-red-500">
-                                    {registerForm.formState.errors.address.basicAddress.message}
+                                    {
+                                      registerForm.formState.errors.address
+                                        .basicAddress.message
+                                    }
                                   </p>
                                 )}
                               </div>
@@ -390,9 +439,13 @@ export default function AuthPage() {
                                   placeholder="City"
                                   {...registerForm.register("address.city")}
                                 />
-                                {registerForm.formState.errors.address?.city && (
+                                {registerForm.formState.errors.address
+                                  ?.city && (
                                   <p className="text-sm text-red-500">
-                                    {registerForm.formState.errors.address.city.message}
+                                    {
+                                      registerForm.formState.errors.address.city
+                                        .message
+                                    }
                                   </p>
                                 )}
                               </div>
@@ -401,9 +454,13 @@ export default function AuthPage() {
                                   placeholder="PIN Code"
                                   {...registerForm.register("address.pinCode")}
                                 />
-                                {registerForm.formState.errors.address?.pinCode && (
+                                {registerForm.formState.errors.address
+                                  ?.pinCode && (
                                   <p className="text-sm text-red-500">
-                                    {registerForm.formState.errors.address.pinCode.message}
+                                    {
+                                      registerForm.formState.errors.address
+                                        .pinCode.message
+                                    }
                                   </p>
                                 )}
                               </div>
@@ -421,12 +478,21 @@ export default function AuthPage() {
                             <RadioGroup
                               defaultValue="customer"
                               className="flex gap-4"
-                              onValueChange={(value) => 
-                                registerForm.setValue("role", value as "customer" | "dealer" | "organization")
+                              onValueChange={(value) =>
+                                registerForm.setValue(
+                                  "role",
+                                  value as
+                                    | "customer"
+                                    | "dealer"
+                                    | "organization"
+                                )
                               }
                             >
                               <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="customer" id="customer" />
+                                <RadioGroupItem
+                                  value="customer"
+                                  id="customer"
+                                />
                                 <Label htmlFor="customer">Customer</Label>
                               </div>
                               <div className="flex items-center space-x-2">
@@ -434,14 +500,19 @@ export default function AuthPage() {
                                 <Label htmlFor="dealer">Dealer</Label>
                               </div>
                               <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="organization" id="organization" />
-                                <Label htmlFor="organization">Organization</Label>
+                                <RadioGroupItem
+                                  value="organization"
+                                  id="organization"
+                                />
+                                <Label htmlFor="organization">
+                                  Organization
+                                </Label>
                               </div>
                             </RadioGroup>
                           </div>
 
-                          <Button 
-                            type="submit" 
+                          <Button
+                            type="submit"
                             className="w-full"
                             disabled={registerMutation.isPending}
                           >
@@ -496,7 +567,9 @@ export default function AuthPage() {
                 Join the Green Path Movement
               </h2>
               <p className="text-lg mb-6 text-center">
-                Be part of a community working together to create a cleaner, greener world through responsible waste management and donations.
+                Be part of a community working together to create a cleaner,
+                greener world through responsible waste management and
+                donations.
               </p>
               <div className="grid grid-cols-3 gap-4 mb-8">
                 <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg text-center">
@@ -515,7 +588,10 @@ export default function AuthPage() {
               <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
                 <div className="flex items-start mb-2">
                   <UserCircle2 className="h-6 w-6 mr-2 shrink-0" />
-                  <p className="italic">"Green Path has transformed how our community deals with waste. It's not just a platform, it's a movement!"</p>
+                  <p className="italic">
+                    "Green Path has transformed how our community deals with
+                    waste. It's not just a platform, it's a movement!"
+                  </p>
                 </div>
                 <p className="text-right text-sm">- Ananya S., Volunteer</p>
               </div>

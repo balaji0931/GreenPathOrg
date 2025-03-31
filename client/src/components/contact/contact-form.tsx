@@ -3,7 +3,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,7 +42,7 @@ export function ContactForm() {
 
   const onSubmit = (data: ContactFormValues) => {
     setIsSubmitting(true);
-    
+
     // Simulate form submission
     setTimeout(() => {
       setIsSubmitting(false);
@@ -66,7 +73,7 @@ export function ContactForm() {
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -75,13 +82,17 @@ export function ContactForm() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your email address" type="email" {...field} />
+                        <Input
+                          placeholder="Your email address"
+                          type="email"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="phone"
@@ -96,7 +107,7 @@ export function ContactForm() {
                   )}
                 />
               </div>
-              
+
               <FormField
                 control={form.control}
                 name="message"
@@ -104,17 +115,17 @@ export function ContactForm() {
                   <FormItem>
                     <FormLabel>Message</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Write your message here..." 
-                        className="min-h-[120px]" 
-                        {...field} 
+                      <Textarea
+                        placeholder="Write your message here..."
+                        className="min-h-[120px]"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
               <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? "Sending..." : "Send Message"}
               </Button>
@@ -127,31 +138,37 @@ export function ContactForm() {
         <CardContent className="p-6">
           <div className="space-y-4">
             <h3 className="font-semibold text-lg mb-4">Get in Touch</h3>
-            
+
             <div className="flex items-start">
               <MapPin className="h-5 w-5 text-primary shrink-0 mt-1 mr-3" />
               <div>
                 <p className="font-medium">Our Location</p>
-                <p className="text-neutral-dark">123 Eco Street, Green City, Earth 54321</p>
+                <p className="text-neutral-dark">Hyderabd, India</p>
               </div>
             </div>
-            
+
             <div className="flex items-start">
               <Mail className="h-5 w-5 text-primary shrink-0 mt-1 mr-3" />
               <div>
                 <p className="font-medium">Email Us</p>
-                <a href="mailto:contact@greenpath.org" className="text-neutral-dark hover:text-primary transition">
-                  contact@greenpath.org
+                <a
+                  href="mailto:contact@greenpath.org"
+                  className="text-neutral-dark hover:text-primary transition"
+                >
+                  greenpathforgood@gmail.com
                 </a>
               </div>
             </div>
-            
+
             <div className="flex items-start">
               <Phone className="h-5 w-5 text-primary shrink-0 mt-1 mr-3" />
               <div>
                 <p className="font-medium">Call Us</p>
-                <a href="tel:+1234567890" className="text-neutral-dark hover:text-primary transition">
-                  +123 456 7890
+                <a
+                  href="tel:+1234567890"
+                  className="text-neutral-dark hover:text-primary transition"
+                >
+                  +91 1234567890
                 </a>
               </div>
             </div>

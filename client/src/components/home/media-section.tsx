@@ -40,12 +40,8 @@ export function MediaSection() {
         <div className="grid md:grid-cols-3 gap-8">
           {/* Video Article */}
           <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className="h-48 bg-[#EEEEEE] relative">
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                  <Play className="h-6 w-6 text-white ml-1" />
-                </div>
-              </div>
+            <div className="h-48 bg-cover bg-[url('/compost.jpg')] relative">
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center"></div>
             </div>
             <div className="p-6">
               <div className="flex items-center mb-3">
@@ -74,7 +70,7 @@ export function MediaSection() {
 
           {/* Blog Article */}
           <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className="h-48 bg-[#EEEEEE]"></div>
+            <div className="h-48 bg-cover bg-[url('/article.jpg')]"></div>
             <div className="p-6">
               <div className="flex items-center mb-3">
                 <FileText className="h-4 w-4 text-[#558B2F] mr-2" />
@@ -107,7 +103,7 @@ export function MediaSection() {
 
           {/* Event Article */}
           <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className="h-48 bg-[#EEEEEE]"></div>
+            <div className="h-48 bg-cover bg-[url('/event.jpg')]"></div>
             <div className="p-6">
               <div className="flex items-center mb-3">
                 <Calendar className="h-4 w-4 text-[#1976D2] mr-2" />
