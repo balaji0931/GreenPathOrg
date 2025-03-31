@@ -164,9 +164,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-secondary shrink-0 mt-1 mr-2" />
-                <span className="text-neutral-medium">
-                  123 Eco Street, Green City, Earth 54321
-                </span>
+                <span className="text-neutral-medium">Hyderabd, India</span>
               </li>
               <li className="flex items-start">
                 <Mail className="h-5 w-5 text-secondary shrink-0 mt-1 mr-2" />
@@ -174,7 +172,7 @@ export function Footer() {
                   href="mailto:contact@greenpath.org"
                   className="text-neutral-medium hover:text-white transition"
                 >
-                  contact@greenpath.org
+                  greenpathforgood@gmail.com
                 </a>
               </li>
               <li className="flex items-start">
@@ -183,7 +181,7 @@ export function Footer() {
                   href="tel:+1234567890"
                   className="text-neutral-medium hover:text-white transition"
                 >
-                  +123 456 7890
+                  +91 1234567890
                 </a>
               </li>
             </ul>
